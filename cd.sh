@@ -9,4 +9,4 @@ chmod 600 ~/.ssh/cp_organization_ssh_private_key
 eval `ssh-agent`
 ssh-add ~/.ssh/*
 
-ssh -o StrictHostKeyChecking=accept-new $SSH_CONNECTION  'cd /home/ubuntu/cuplan/api && ./run.sh'
+ssh -o StrictHostKeyChecking=accept-new $SSH_CONNECTION  'cd /home/ubuntu/cuplan && ./run.sh'

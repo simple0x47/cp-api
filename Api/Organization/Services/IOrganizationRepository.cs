@@ -17,6 +17,6 @@ public interface IOrganizationRepository
     ///     Finds an organization by its id, returning the organization if it is found.
     /// </summary>
     /// <param name="id"></param>
-    /// <returns>The organization whose id has been specified or an error.</returns>
+    /// <returns>The <see cref="Organization"/> whose id has been specified or an error.</returns>
     public Task<Result<Models.Organization, Error<ErrorKind>>> FindById(string id);
 }

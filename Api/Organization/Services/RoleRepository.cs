@@ -1,7 +1,6 @@
 using Core;
 using Cuplan.Organization.ServiceModels;
 using MongoDB.Driver;
-using Organization;
 using Organization.Config;
 
 namespace Cuplan.Organization.Services;

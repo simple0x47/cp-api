@@ -1,6 +1,5 @@
 using Core;
 using Cuplan.Organization.Services;
-using Organization;
 
 namespace Cuplan.Organization.Models;
 

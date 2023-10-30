@@ -1,4 +1,4 @@
-namespace Organization;
+namespace Cuplan;
 
 public enum ErrorKind
 {

@@ -1,7 +1,6 @@
 using Core;
 using Cuplan.Organization.Models;
 using Microsoft.AspNetCore.Mvc;
-using Organization;
 
 namespace Cuplan.Organization.Controllers;
 

@@ -2,7 +2,6 @@ using Core;
 using Cuplan.Organization.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Organization;
 using Organization.Config;
 using Member = Cuplan.Organization.ServiceModels.Member;
 

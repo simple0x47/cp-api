@@ -1,0 +1,3 @@
+[submodule "compose"]
+	path = compose
+	url = https://github.com/simple0x47/cp-api-compose.git

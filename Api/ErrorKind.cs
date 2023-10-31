@@ -4,5 +4,6 @@ public enum ErrorKind
 {
     NotFound,
     StorageError,
-    TimedOut
+    TimedOut,
+    ServiceError
 }

@@ -19,9 +19,15 @@ public class ApiGatewayControllerTest : TestBase
     public async Task SignUpCreatingOrg_ValidData_ReturnsOrgId()
     {
         const int expectedOrgIdLength = 24;
+
+        SignUpPayload signUp = new();
+        signUp.FullName = "Integration Test";
+        signUp.Email = $"{Guid.NewGuid().ToString()}@simpleg.eu";
+        signUp.Password = Guid.NewGuid().ToString();
+
         RegisterCreatingOrgPayload payload = new()
         {
-            UserId = "1234",
+            User = signUp,
             Org = new PartialOrganization("example",
                 new Address("ES", "Albacete", "Villarrobledo", "Calle", "85", "", "02600"), Array.Empty<string>())
         };

@@ -1,19 +1,22 @@
 using Core;
-using Organization;
+using Cuplan.Organization.Services;
 
 namespace Cuplan.Organization.Models;
 
 public class ApiGatewayLogic
 {
+    private readonly IAuthProvider _authProvider;
     private readonly MemberManager _memberManager;
     private readonly OrganizationManager _orgManager;
     private readonly RoleManager _roleManager;
 
-    public ApiGatewayLogic(OrganizationManager orgManager, MemberManager memberManager, RoleManager roleManager)
+    public ApiGatewayLogic(OrganizationManager orgManager, MemberManager memberManager, RoleManager roleManager,
+        IAuthProvider authProvider)
     {
         _orgManager = orgManager;
         _memberManager = memberManager;
         _roleManager = roleManager;
+        _authProvider = authProvider;
     }
 
     /// <summary>
@@ -21,6 +24,12 @@ public class ApiGatewayLogic
     /// <returns></returns>
     public async Task<Result<string, Error<ErrorKind>>> RegisterCreatingOrg(RegisterCreatingOrgPayload payload)
     {
+        Result<string, Error<ErrorKind>> signUpResult = await _authProvider.SignUp(payload.User);
+
+        if (!signUpResult.IsOk) return Result<string, Error<ErrorKind>>.Err(signUpResult.UnwrapErr());
+
+        string userId = signUpResult.Unwrap();
+
         Result<string, Error<ErrorKind>> createOrgResult = await _orgManager.Create(payload.Org);
 
         if (!createOrgResult.IsOk) return Result<string, Error<ErrorKind>>.Err(createOrgResult.UnwrapErr());
@@ -33,7 +42,7 @@ public class ApiGatewayLogic
 
         Role adminRole = adminRoleResult.Unwrap();
 
-        PartialMember partialMember = new(orgId, payload.UserId, Array.Empty<string>(), new[] { adminRole.Id });
+        PartialMember partialMember = new(orgId, userId, Array.Empty<string>(), new[] { adminRole.Id });
 
         Result<string, Error<ErrorKind>> createMemberResult = await _memberManager.Create(partialMember);
 

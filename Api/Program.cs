@@ -41,6 +41,7 @@ builder.Services.AddSingleton<ConfigurationReader>();
 builder.Services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
 builder.Services.AddSingleton<IMemberRepository, MemberRepository>();
 builder.Services.AddSingleton<IRoleRepository, RoleRepository>();
+builder.Services.AddSingleton<IAuthProvider, Auth0Provider>();
 
 // Models
 builder.Services.AddScoped<MemberManager>();

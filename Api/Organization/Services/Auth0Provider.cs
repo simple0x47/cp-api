@@ -69,7 +69,8 @@ public class Auth0Provider : IAuthProvider
             return Result<string, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.ServiceError,
                 "response contains no '_id'"));
 
-        // tokens have the auth0| prefix for the 'sub'
+        // the prefix is added so the ids represented within the tokens are equal to the ones used
+        // within Cuplan.
         return Result<string, Error<ErrorKind>>.Ok($"{IdPrefix}{okResponse._id}");
     }
 

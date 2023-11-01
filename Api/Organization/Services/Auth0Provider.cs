@@ -15,6 +15,7 @@ public class Auth0Provider : IAuthProvider
     private const string RequiredScopes = "openid offline_access";
     private const string SignUpEndpoint = "dbconnections/signup";
     private const string LoginEndpoint = "oauth/token";
+    private const string IdPrefix = "auth0|";
 
     private readonly HttpClient _client;
     private readonly string _clientId;
@@ -68,7 +69,8 @@ public class Auth0Provider : IAuthProvider
             return Result<string, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.ServiceError,
                 "response contains no '_id'"));
 
-        return Result<string, Error<ErrorKind>>.Ok(okResponse._id);
+        // tokens have the auth0| prefix for the 'sub'
+        return Result<string, Error<ErrorKind>>.Ok($"{IdPrefix}{okResponse._id}");
     }
 
     public async Task<Result<LoginSuccessPayload, Error<ErrorKind>>> Login(LoginPayload login)

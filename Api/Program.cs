@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Core.Secrets;
 using Cuplan.Organization.Models;
+using Cuplan.Organization.Models.Authentication;
 using Cuplan.Organization.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -47,7 +48,7 @@ builder.Services.AddSingleton<IAuthProvider, Auth0Provider>();
 builder.Services.AddScoped<MemberManager>();
 builder.Services.AddScoped<OrganizationManager>();
 builder.Services.AddScoped<RoleManager>();
-builder.Services.AddScoped<ApiGatewayLogic>();
+builder.Services.AddScoped<Authenticator>();
 
 WebApplication app = builder.Build();
 

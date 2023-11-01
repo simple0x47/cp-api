@@ -95,7 +95,7 @@ public class MemberControllerTest : TestBase
     {
         PartialMember examplePartialMember =
             new(orgId, DefaultTestUserId, Array.Empty<string>(), Array.Empty<string>());
-        HttpResponseMessage response = await Client.PostAsync("api/Member", JsonContent.Create(examplePartialMember));
+        HttpResponseMessage response = await Client.PostAsync(MemberApi, JsonContent.Create(examplePartialMember));
 
 
         string memberId = await response.Content.ReadAsStringAsync();

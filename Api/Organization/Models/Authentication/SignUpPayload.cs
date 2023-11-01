@@ -1,4 +1,4 @@
-namespace Cuplan.Organization.Models;
+namespace Cuplan.Organization.Models.Authentication;
 
 public struct SignUpPayload
 {

@@ -1,5 +1,5 @@
 using Core;
-using Cuplan.Organization.Models;
+using Cuplan.Organization.Models.Authentication;
 
 namespace Cuplan.Organization.Services;
 
@@ -9,6 +9,13 @@ public interface IAuthProvider
     ///     Signs up an user for the specified payload.
     /// </summary>
     /// <param name="signUp"></param>
-    /// <returns>User's id or an error.</returns>
+    /// <returns>The user id or an error.</returns>
     public Task<Result<string, Error<ErrorKind>>> SignUp(SignUpPayload signUp);
+
+    /// <summary>
+    ///     Logs in an user for the specified payload.
+    /// </summary>
+    /// <param name="login"></param>
+    /// <returns>A <see cref="LoginSuccessPayload" /> or an error.</returns>
+    public Task<Result<LoginSuccessPayload, Error<ErrorKind>>> Login(LoginPayload login);
 }

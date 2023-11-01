@@ -5,5 +5,6 @@ public enum ErrorKind
     NotFound,
     StorageError,
     TimedOut,
-    ServiceError
+    ServiceError,
+    InvalidData
 }

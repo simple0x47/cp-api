@@ -1,6 +1,6 @@
-namespace Cuplan.Organization.ServiceModels;
+namespace Cuplan.Organization.ServiceModels.Auth0;
 
-public struct Auth0SignUpPayload
+public struct SignUpPayload
 {
     public string client_id { get; set; }
     public string email { get; set; }

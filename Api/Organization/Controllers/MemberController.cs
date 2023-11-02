@@ -72,4 +72,21 @@ public class MemberController : ControllerBase
 
         return NoContent();
     }
+
+    [Route("api/[controller]/user/{userId}")]
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> ReadMembersByUserId([FromRoute] string userId)
+    {
+        Result<Member[], Error<ErrorKind>> result = await _memberManager.ReadMembersByUserId(userId);
+
+        if (!result.IsOk)
+        {
+            Error<ErrorKind> error = result.UnwrapErr();
+
+            return StatusCode(StatusCodes.Status500InternalServerError, error.Message);
+        }
+
+        return Ok(JsonConvert.SerializeObject(result.Unwrap()));
+    }
 }

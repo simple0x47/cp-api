@@ -32,6 +32,13 @@ public interface IMemberRepository
     ///     Finds a membership by its id.
     /// </summary>
     /// <param name="memberId">Id of the membership to be retrieved.</param>
-    /// <returns>An <see cref="Member" /> indicating that the operation was successful, or an error.</returns>
+    /// <returns>A <see cref="Member" /> indicating that the operation was successful, or an error.</returns>
     public Task<Result<Member, Error<ErrorKind>>> FindById(string memberId);
+
+    /// <summary>
+    ///     Finds the memberships of an user by its id.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns>An array of <see cref="Member" /> or an error.</returns>
+    public Task<Result<Member[], Error<ErrorKind>>> FindByUserId(string userId);
 }

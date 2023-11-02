@@ -12,7 +12,7 @@ public class MemberControllerTest : TestBase
 {
     private const string OrganizationApi = "api/Organization";
     private const string MemberApi = "api/Member";
-    private const string DefaultTestUserId = "example@domain.com";
+    private const string DefaultTestUserId = "auth0|65424962449b03b525c645db";
 
     public MemberControllerTest(WebApplicationFactory<Program> factory, ITestOutputHelper output) : base(factory,
         output)
@@ -75,6 +75,29 @@ public class MemberControllerTest : TestBase
         Assert.NotNull(getMember);
         Assert.True(getMember.Permissions.SequenceEqual(permissions));
         Assert.True(getMember.Roles.SequenceEqual(roles));
+    }
+
+    [Fact]
+    public async Task GetAllMembersForUserId_ValidUserId_ExpectedMembers()
+    {
+        const int expectedMembershipsLength = 2;
+        string firstOrgId = await CreateOrganization();
+        string secondOrgId = await CreateOrganization();
+
+        string firstOrgMemberId = await CreateMember(firstOrgId);
+        string secondOrgMemberId = await CreateMember(secondOrgId);
+
+
+        HttpResponseMessage response = await Client.GetAsync($"{MemberApi}/user/{DefaultTestUserId}");
+        Member[]? memberships = await response.Content.ReadFromJsonAsync<Member[]>();
+
+
+        Assert.NotNull(memberships);
+        foreach (Member member in memberships)
+            if (member.OrgId != firstOrgId && member.OrgId != secondOrgId)
+                Assert.Fail($"User id '{member.UserId}' is member of an unexpected organization '{member.OrgId}'");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(expectedMembershipsLength, memberships.Length);
     }
 
     private async Task<string> CreateOrganization()

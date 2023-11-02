@@ -15,6 +15,7 @@ public class MemberRepository : IMemberRepository
 
     private readonly double _createTimeoutAfterSeconds;
     private readonly double _findByIdTimeoutAfterSeconds;
+    private readonly TimeSpan _findByUserIdTimeout;
     private readonly ILogger<MemberRepository> _logger;
     private readonly double _setPermissionsTimeoutAfterSeconds;
     private readonly double _setRolesTimeoutAfterSeconds;
@@ -29,6 +30,9 @@ public class MemberRepository : IMemberRepository
             config.GetDoubleOrDefault("MemberRepository:CreateTimeout", DefaultTimeoutAfterSeconds);
         _findByIdTimeoutAfterSeconds =
             config.GetDoubleOrDefault("MemberRepository:FindByIdTimeout", DefaultTimeoutAfterSeconds);
+        _findByUserIdTimeout =
+            TimeSpan.FromSeconds(config.GetDoubleOrDefault("MemberRepository:FindByUserIdTimeout",
+                DefaultTimeoutAfterSeconds));
         _setPermissionsTimeoutAfterSeconds =
             config.GetDoubleOrDefault("MemberRepository:SetPermissionsTimeout", DefaultTimeoutAfterSeconds);
         _setRolesTimeoutAfterSeconds =
@@ -161,6 +165,41 @@ public class MemberRepository : IMemberRepository
             string message = $"failed to find member by id: {e}";
             _logger.LogInformation(message);
             return Result<Models.Member, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
+                message));
+        }
+    }
+
+    public async Task<Result<Models.Member[], Error<ErrorKind>>> FindByUserId(string userId)
+    {
+        try
+        {
+            IList<Member> members =
+                await _collection.Find(p => p.UserId.Equals(userId)).ToListAsync()
+                    .WaitAsync(TimeSpan.FromSeconds(_findByIdTimeoutAfterSeconds));
+
+            Models.Member[] modelsMembers = new Models.Member[members.Count];
+            int i = 0;
+
+            foreach (Member member in members)
+            {
+                modelsMembers[i] = member;
+                i++;
+            }
+
+            return Result<Models.Member[], Error<ErrorKind>>.Ok(modelsMembers);
+        }
+        catch (TimeoutException)
+        {
+            string message = "timed out finding member by id";
+            _logger.LogInformation(message);
+            return Result<Models.Member[], Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.TimedOut,
+                message));
+        }
+        catch (Exception e)
+        {
+            string message = $"failed to find member by id: {e}";
+            _logger.LogInformation(message);
+            return Result<Models.Member[], Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
                 message));
         }
     }

@@ -11,8 +11,8 @@ public class OrganizationRepository : IOrganizationRepository
     private const double DefaultTimeoutAfterSeconds = 15;
     private readonly IMongoCollection<ServiceModels.Organization> _collection;
 
-    private readonly double _createTimeoutAfterSeconds;
-    private readonly double _findByIdTimeoutAfterSeconds;
+    private readonly TimeSpan _createTimeoutAfterSeconds;
+    private readonly TimeSpan _findByIdTimeoutAfterSeconds;
 
     private readonly ILogger<OrganizationRepository> _logger;
 
@@ -25,9 +25,11 @@ public class OrganizationRepository : IOrganizationRepository
                 config.GetStringOrThrowException("OrganizationRepository:Collection"));
 
         _createTimeoutAfterSeconds =
-            config.GetDoubleOrDefault("OrganizationRepository:CreateTimeout", DefaultTimeoutAfterSeconds);
+            TimeSpan.FromSeconds(config.GetDoubleOrDefault("OrganizationRepository:CreateTimeout",
+                DefaultTimeoutAfterSeconds));
         _findByIdTimeoutAfterSeconds =
-            config.GetDoubleOrDefault("OrganizationRepository:FindByIdTimeout", DefaultTimeoutAfterSeconds);
+            TimeSpan.FromSeconds(config.GetDoubleOrDefault("OrganizationRepository:FindByIdTimeout",
+                DefaultTimeoutAfterSeconds));
     }
 
     public async Task<Result<string, Error<ErrorKind>>> Create(PartialOrganization partialOrg)
@@ -35,7 +37,7 @@ public class OrganizationRepository : IOrganizationRepository
         try
         {
             ServiceModels.Organization org = new(partialOrg);
-            await _collection.InsertOneAsync(org).WaitAsync(TimeSpan.FromSeconds(_createTimeoutAfterSeconds));
+            await _collection.InsertOneAsync(org).WaitAsync(_createTimeoutAfterSeconds);
 
             return Result<string, Error<ErrorKind>>.Ok(org.Id.ToString());
         }
@@ -55,13 +57,13 @@ public class OrganizationRepository : IOrganizationRepository
             ObjectId id = ObjectId.Parse(orgId);
             IAsyncCursor<ServiceModels.Organization>? cursor =
                 await _collection.FindAsync(p => p.Id.Equals(id))
-                    .WaitAsync(TimeSpan.FromSeconds(_findByIdTimeoutAfterSeconds));
+                    .WaitAsync(_findByIdTimeoutAfterSeconds);
 
             if (cursor is null)
                 return Result<Models.Organization, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
                     "find async cursor is null"));
 
-            bool hasNext = await cursor.MoveNextAsync().WaitAsync(TimeSpan.FromSeconds(_findByIdTimeoutAfterSeconds));
+            bool hasNext = await cursor.MoveNextAsync().WaitAsync(_findByIdTimeoutAfterSeconds);
 
             if (!hasNext)
                 return Result<Models.Organization, Error<ErrorKind>>.Err(

@@ -17,7 +17,7 @@ public class TestBase : IClassFixture<WebApplicationFactory<Program>>
         SecretsManager = new BitwardenSecretsManager(null);
         Factory = factory;
         Output = output;
-        ApiAccessToken = SecretsManager.get(Environment.GetEnvironmentVariable("API_ACCESS_TOKEN_SECRET"));
+        ApiAccessToken = SecretsManager.Get(Environment.GetEnvironmentVariable("API_ACCESS_TOKEN_SECRET"));
 
         Client = factory.CreateClient();
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ApiAccessToken);

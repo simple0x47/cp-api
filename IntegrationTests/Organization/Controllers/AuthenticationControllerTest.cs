@@ -48,8 +48,8 @@ public class AuthenticationControllerTest : TestBase
     [Fact]
     public async Task Login_PreviouslyCreatedUser_Succeeds()
     {
-        string? email = SecretsManager.get(Environment.GetEnvironmentVariable(TestLoginEmailSecretVar));
-        string? password = SecretsManager.get(Environment.GetEnvironmentVariable(TestLoginPasswordSecretVar));
+        string? email = SecretsManager.Get(Environment.GetEnvironmentVariable(TestLoginEmailSecretVar));
+        string? password = SecretsManager.Get(Environment.GetEnvironmentVariable(TestLoginPasswordSecretVar));
 
         Assert.NotNull(email);
         Assert.NotNull(password);

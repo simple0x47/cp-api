@@ -10,6 +10,6 @@ RUN apt-get update && \
     curl -LO https://github.com/bitwarden/sdk/releases/download/bws-v0.3.0/bws-x86_64-unknown-linux-gnu-0.3.0.zip && \
     unzip bws-x86_64-unknown-linux-gnu-0.3.0.zip && \
     chmod +x bws && \
-    export PATH=$PATH:$PWD && \
+    mv ./bws /usr/bin/ && \
     cd ../
 ENTRYPOINT ["dotnet", "Api.dll"]

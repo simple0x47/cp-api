@@ -15,7 +15,12 @@ public class Member
         OrgId = partialMember.OrgId;
         UserId = partialMember.UserId;
         Permissions = partialMember.Permissions;
-        Roles = partialMember.Roles;
+
+        IList<string> roleIds = new List<string>();
+
+        foreach (Models.Role role in partialMember.Roles) roleIds.Add(role.Id);
+
+        Roles = roleIds;
     }
 
     public Member(ObjectId id, string orgId, string userId, IEnumerable<string> permissions,
@@ -34,9 +39,4 @@ public class Member
     public string UserId { get; set; }
     public IEnumerable<string> Permissions { get; set; }
     public IEnumerable<string> Roles { get; set; }
-
-    public static implicit operator Models.Member(Member member)
-    {
-        return new Models.Member(member.Id.ToString(), member.OrgId, member.UserId, member.Permissions, member.Roles);
-    }
 }

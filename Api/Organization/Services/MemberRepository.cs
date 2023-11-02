@@ -1,5 +1,6 @@
 using Core;
 using Cuplan.Organization.Models;
+using Cuplan.Organization.Transformers;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Organization.Config;
@@ -17,14 +18,17 @@ public class MemberRepository : IMemberRepository
     private readonly TimeSpan _findByIdTimeout;
     private readonly TimeSpan _findByUserIdTimeout;
     private readonly ILogger<MemberRepository> _logger;
+    private readonly IRoleRepository _roleRepository;
     private readonly TimeSpan _setPermissionsTimeout;
     private readonly TimeSpan _setRolesTimeout;
 
-    public MemberRepository(ILogger<MemberRepository> logger, ConfigurationReader config, MongoClient client)
+    public MemberRepository(ILogger<MemberRepository> logger, ConfigurationReader config, MongoClient client,
+        IRoleRepository roleRepository)
     {
         _logger = logger;
         _collection = client.GetDatabase(config.GetStringOrThrowException(ConfigurationReader.DatabaseKey))
             .GetCollection<Member>(config.GetStringOrThrowException("MemberRepository:Collection"));
+        _roleRepository = roleRepository;
 
         _createTimeout =
             TimeSpan.FromSeconds(
@@ -86,10 +90,6 @@ public class MemberRepository : IMemberRepository
 
             UpdateResult result = await _collection.UpdateOneAsync(filter, update)
                 .WaitAsync(_setRolesTimeout);
-
-            if (result.ModifiedCount != 1)
-                return Result<Empty, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.NotFound,
-                    $"member with id '{memberId}' not found"));
 
             return Result<Empty, Error<ErrorKind>>.Ok(new Empty());
         }
@@ -155,7 +155,12 @@ public class MemberRepository : IMemberRepository
                 return Result<Models.Member, Error<ErrorKind>>.Err(
                     new Error<ErrorKind>(ErrorKind.NotFound, $"could not find member by id '{memberId}'"));
 
-            return Result<Models.Member, Error<ErrorKind>>.Ok(idMember);
+            Result<Models.Member, Error<ErrorKind>> modelsMemberResult = await idMember.Transform(_roleRepository);
+
+            if (!modelsMemberResult.IsOk)
+                return Result<Models.Member, Error<ErrorKind>>.Err(modelsMemberResult.UnwrapErr());
+
+            return Result<Models.Member, Error<ErrorKind>>.Ok(modelsMemberResult.Unwrap());
         }
         catch (TimeoutException)
         {
@@ -186,7 +191,12 @@ public class MemberRepository : IMemberRepository
 
             foreach (Member member in members)
             {
-                modelsMembers[i] = member;
+                Result<Models.Member, Error<ErrorKind>> modelsMemberResult = await member.Transform(_roleRepository);
+
+                if (!modelsMemberResult.IsOk)
+                    return Result<Models.Member[], Error<ErrorKind>>.Err(modelsMemberResult.UnwrapErr());
+
+                modelsMembers[i] = modelsMemberResult.Unwrap();
                 i++;
             }
 

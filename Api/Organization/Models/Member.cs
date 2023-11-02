@@ -7,7 +7,7 @@ public class Member
     }
 
     public Member(string id, string orgId, string userId, IEnumerable<string> permissions,
-        IEnumerable<string> roles)
+        IEnumerable<Role> roles)
     {
         Id = id;
         OrgId = orgId;
@@ -30,5 +30,5 @@ public class Member
     public string OrgId { get; set; }
     public string UserId { get; set; }
     public IEnumerable<string> Permissions { get; set; }
-    public IEnumerable<string> Roles { get; set; }
+    public IEnumerable<Role> Roles { get; set; }
 }

@@ -40,8 +40,8 @@ builder.Services.AddSingleton<ConfigurationReader>();
 
 // Services
 builder.Services.AddSingleton<IOrganizationRepository, OrganizationRepository>();
-builder.Services.AddSingleton<IMemberRepository, MemberRepository>();
 builder.Services.AddSingleton<IRoleRepository, RoleRepository>();
+builder.Services.AddSingleton<IMemberRepository, MemberRepository>();
 builder.Services.AddSingleton<IAuthProvider, Auth0Provider>();
 
 // Models

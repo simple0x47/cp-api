@@ -62,7 +62,11 @@ public class MemberManager
 
         if (!updatePermissions.IsOk) return Result<Empty, Error<ErrorKind>>.Err(updatePermissions.UnwrapErr());
 
-        Result<Empty, Error<ErrorKind>> updateRoles = await _memberRepository.SetRoles(idMember.Id, idMember.Roles);
+        IList<string> roleIds = new List<string>();
+
+        foreach (Role role in idMember.Roles) roleIds.Add(role.Id);
+
+        Result<Empty, Error<ErrorKind>> updateRoles = await _memberRepository.SetRoles(idMember.Id, roleIds);
 
         if (!updateRoles.IsOk) return Result<Empty, Error<ErrorKind>>.Err(updateRoles.UnwrapErr());
 

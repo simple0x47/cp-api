@@ -23,7 +23,7 @@ public class MemberControllerTest : TestBase
     public async Task CreateMember_WithNonExistingOrgId_Fails()
     {
         PartialMember examplePartialMember =
-            new("653bf78afc1ba1ad481195c4", "example@domain.com", Array.Empty<string>(), Array.Empty<string>());
+            new("653bf78afc1ba1ad481195c4", "example@domain.com", Array.Empty<string>(), Array.Empty<Role>());
         HttpResponseMessage response = await Client.PostAsync(MemberApi, JsonContent.Create(examplePartialMember));
 
 
@@ -55,7 +55,7 @@ public class MemberControllerTest : TestBase
         string memberId = await CreateMember(orgId);
 
         IEnumerable<string> permissions = new[] { "permission1", "permission2" };
-        IEnumerable<string> roles = new[] { "role1", "role2" };
+        IEnumerable<Role> roles = Array.Empty<Role>();
         PartialMember partialMember = new(orgId, DefaultTestUserId, permissions, roles);
         Member idMember = new(memberId, partialMember);
 
@@ -117,7 +117,7 @@ public class MemberControllerTest : TestBase
     private async Task<string> CreateMember(string orgId)
     {
         PartialMember examplePartialMember =
-            new(orgId, DefaultTestUserId, Array.Empty<string>(), Array.Empty<string>());
+            new(orgId, DefaultTestUserId, Array.Empty<string>(), Array.Empty<Role>());
         HttpResponseMessage response = await Client.PostAsync(MemberApi, JsonContent.Create(examplePartialMember));
 
 

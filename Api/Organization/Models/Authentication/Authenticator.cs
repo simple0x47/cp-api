@@ -51,7 +51,7 @@ public class Authenticator
 
         Role adminRole = adminRoleResult.Unwrap();
 
-        PartialMember partialMember = new(orgId, userId, Array.Empty<string>(), new[] { adminRole.Id });
+        PartialMember partialMember = new(orgId, userId, Array.Empty<string>(), new[] { adminRole });
 
         Result<string, Error<ErrorKind>> createMemberResult = await _memberManager.Create(partialMember);
 

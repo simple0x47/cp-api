@@ -17,7 +17,8 @@ public class Initialization(WebApplicationBuilder builder)
         string? mongoDbUri = _secretsManager.Get(secretId);
 
         if (mongoDbUri is null)
-            throw new InvalidOperationException("Failed to retrieve secret containing the 'MongoDBUri'.");
+            throw new InvalidOperationException(
+                $"Failed to retrieve secret containing the 'MongoDBUri' for secret id '{secretId}'");
 
         return mongoDbUri;
     }

@@ -1,8 +1,15 @@
 namespace Cuplan.Organization.Models;
 
-public class PartialOrganization(string name, Address address, IEnumerable<string> permissions)
+public class PartialOrganization
 {
-    public string Name { get; set; } = name;
-    public Address Address { get; set; } = address;
-    public IEnumerable<string> Permissions { get; set; } = permissions;
+    public PartialOrganization(string name, Address address, IEnumerable<string> permissions)
+    {
+        Name = name;
+        Address = address;
+        Permissions = permissions;
+    }
+
+    public string Name { get; set; }
+    public Address Address { get; set; }
+    public IEnumerable<string> Permissions { get; set; }
 }

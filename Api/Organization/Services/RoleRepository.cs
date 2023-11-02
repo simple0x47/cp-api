@@ -64,4 +64,38 @@ public class RoleRepository : IRoleRepository
                 message));
         }
     }
+
+    public async Task<Result<IEnumerable<Models.Role>, Error<ErrorKind>>> FindByIds(IEnumerable<string> ids)
+    {
+        try
+        {
+            IList<Role>? roles = await _collection.Find(r => ids.Contains(r.Id.ToString())).ToListAsync()
+                .WaitAsync(_getAdminRoleIdTimeout);
+
+            if (roles is null)
+                return Result<IEnumerable<Models.Role>, Error<ErrorKind>>.Err(new Error<ErrorKind>(
+                    ErrorKind.StorageError,
+                    "'roles' is null"));
+
+            IList<Models.Role> modelsRole = new List<Models.Role>();
+
+            foreach (Role role in roles) modelsRole.Add(role);
+
+            return Result<IEnumerable<Models.Role>, Error<ErrorKind>>.Ok(modelsRole);
+        }
+        catch (TimeoutException)
+        {
+            string message = "timed out finding roles by ids";
+            _logger.LogInformation(message);
+            return Result<IEnumerable<Models.Role>, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.TimedOut,
+                message));
+        }
+        catch (Exception e)
+        {
+            string message = $"failed to find roles by ids: {e}";
+            _logger.LogInformation(message);
+            return Result<IEnumerable<Models.Role>, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
+                message));
+        }
+    }
 }

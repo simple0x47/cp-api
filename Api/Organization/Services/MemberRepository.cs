@@ -13,12 +13,12 @@ public class MemberRepository : IMemberRepository
 
     private readonly IMongoCollection<Member> _collection;
 
-    private readonly double _createTimeoutAfterSeconds;
-    private readonly double _findByIdTimeoutAfterSeconds;
+    private readonly TimeSpan _createTimeout;
+    private readonly TimeSpan _findByIdTimeout;
     private readonly TimeSpan _findByUserIdTimeout;
     private readonly ILogger<MemberRepository> _logger;
-    private readonly double _setPermissionsTimeoutAfterSeconds;
-    private readonly double _setRolesTimeoutAfterSeconds;
+    private readonly TimeSpan _setPermissionsTimeout;
+    private readonly TimeSpan _setRolesTimeout;
 
     public MemberRepository(ILogger<MemberRepository> logger, ConfigurationReader config, MongoClient client)
     {
@@ -26,17 +26,21 @@ public class MemberRepository : IMemberRepository
         _collection = client.GetDatabase(config.GetStringOrThrowException(ConfigurationReader.DatabaseKey))
             .GetCollection<Member>(config.GetStringOrThrowException("MemberRepository:Collection"));
 
-        _createTimeoutAfterSeconds =
-            config.GetDoubleOrDefault("MemberRepository:CreateTimeout", DefaultTimeoutAfterSeconds);
-        _findByIdTimeoutAfterSeconds =
-            config.GetDoubleOrDefault("MemberRepository:FindByIdTimeout", DefaultTimeoutAfterSeconds);
+        _createTimeout =
+            TimeSpan.FromSeconds(
+                config.GetDoubleOrDefault("MemberRepository:CreateTimeout", DefaultTimeoutAfterSeconds));
+        _findByIdTimeout =
+            TimeSpan.FromSeconds(config.GetDoubleOrDefault("MemberRepository:FindByIdTimeout",
+                DefaultTimeoutAfterSeconds));
         _findByUserIdTimeout =
             TimeSpan.FromSeconds(config.GetDoubleOrDefault("MemberRepository:FindByUserIdTimeout",
                 DefaultTimeoutAfterSeconds));
-        _setPermissionsTimeoutAfterSeconds =
-            config.GetDoubleOrDefault("MemberRepository:SetPermissionsTimeout", DefaultTimeoutAfterSeconds);
-        _setRolesTimeoutAfterSeconds =
-            config.GetDoubleOrDefault("MemberRepository:SetRolesTimeout", DefaultTimeoutAfterSeconds);
+        _setPermissionsTimeout =
+            TimeSpan.FromSeconds(config.GetDoubleOrDefault("MemberRepository:SetPermissionsTimeout",
+                DefaultTimeoutAfterSeconds));
+        _setRolesTimeout =
+            TimeSpan.FromSeconds(config.GetDoubleOrDefault("MemberRepository:SetRolesTimeout",
+                DefaultTimeoutAfterSeconds));
     }
 
     public async Task<Result<Empty, Error<ErrorKind>>> SetPermissions(string memberId, IEnumerable<string> permissions)
@@ -49,7 +53,7 @@ public class MemberRepository : IMemberRepository
                 Builders<Member>.Update.Set(m => m.Permissions, permissions);
 
             UpdateResult result = await _collection.UpdateOneAsync(filter, update)
-                .WaitAsync(TimeSpan.FromSeconds(_setPermissionsTimeoutAfterSeconds));
+                .WaitAsync(_setPermissionsTimeout);
 
             if (result.ModifiedCount != 1)
                 return Result<Empty, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.NotFound,
@@ -81,7 +85,7 @@ public class MemberRepository : IMemberRepository
                 Builders<Member>.Update.Set(m => m.Roles, roles);
 
             UpdateResult result = await _collection.UpdateOneAsync(filter, update)
-                .WaitAsync(TimeSpan.FromSeconds(_setRolesTimeoutAfterSeconds));
+                .WaitAsync(_setRolesTimeout);
 
             if (result.ModifiedCount != 1)
                 return Result<Empty, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.NotFound,
@@ -109,7 +113,7 @@ public class MemberRepository : IMemberRepository
         {
             Member member = new(partialMember);
 
-            await _collection.InsertOneAsync(member).WaitAsync(TimeSpan.FromSeconds(_createTimeoutAfterSeconds));
+            await _collection.InsertOneAsync(member).WaitAsync(_createTimeout);
             return Result<string, Error<ErrorKind>>.Ok(member.Id.ToString());
         }
         catch (TimeoutException)
@@ -133,13 +137,13 @@ public class MemberRepository : IMemberRepository
             ObjectId id = ObjectId.Parse(memberId);
             IAsyncCursor<Member>? cursor =
                 await _collection.FindAsync(p => p.Id.Equals(id))
-                    .WaitAsync(TimeSpan.FromSeconds(_findByIdTimeoutAfterSeconds));
+                    .WaitAsync(_findByIdTimeout);
 
             if (cursor is null)
                 return Result<Models.Member, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
                     "find async cursor is null"));
 
-            bool hasNext = await cursor.MoveNextAsync().WaitAsync(TimeSpan.FromSeconds(_findByIdTimeoutAfterSeconds));
+            bool hasNext = await cursor.MoveNextAsync().WaitAsync(_findByIdTimeout);
 
             if (!hasNext)
                 return Result<Models.Member, Error<ErrorKind>>.Err(
@@ -175,7 +179,7 @@ public class MemberRepository : IMemberRepository
         {
             IList<Member> members =
                 await _collection.Find(p => p.UserId.Equals(userId)).ToListAsync()
-                    .WaitAsync(TimeSpan.FromSeconds(_findByIdTimeoutAfterSeconds));
+                    .WaitAsync(_findByUserIdTimeout);
 
             Models.Member[] modelsMembers = new Models.Member[members.Count];
             int i = 0;
@@ -190,14 +194,14 @@ public class MemberRepository : IMemberRepository
         }
         catch (TimeoutException)
         {
-            string message = "timed out finding member by id";
+            string message = "timed out finding members by user id";
             _logger.LogInformation(message);
             return Result<Models.Member[], Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.TimedOut,
                 message));
         }
         catch (Exception e)
         {
-            string message = $"failed to find member by id: {e}";
+            string message = $"failed to find members by user id: {e}";
             _logger.LogInformation(message);
             return Result<Models.Member[], Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
                 message));

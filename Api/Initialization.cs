@@ -14,7 +14,7 @@ public class Initialization(WebApplicationBuilder builder)
         if (secretId is null)
             throw new InvalidOperationException("Missing 'MongoDBConnectionUriSecret' from configuration.");
 
-        string? mongoDbUri = _secretsManager.get(secretId);
+        string? mongoDbUri = _secretsManager.Get(secretId);
 
         if (mongoDbUri is null)
             throw new InvalidOperationException("Failed to retrieve secret containing the 'MongoDBUri'.");

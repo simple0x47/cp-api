@@ -32,11 +32,11 @@ public class Auth0Provider : IAuthProvider
 
         if (_identityProviderUrl is null) throw new NullReferenceException("'_identityProviderUrl' is null.");
 
-        _clientId = secretsManager.get(config["Auth0:ClientIdSecret"]);
+        _clientId = secretsManager.Get(config["Auth0:ClientIdSecret"]);
 
         if (_clientId is null) throw new NullReferenceException("'_clientId' is null.");
 
-        _clientSecret = secretsManager.get(config["Auth0:ClientSecretSecret"]);
+        _clientSecret = secretsManager.Get(config["Auth0:ClientSecretSecret"]);
 
         if (_clientSecret is null) throw new NullReferenceException("'_clientSecret' is null.");
 

@@ -84,8 +84,8 @@ public class MemberControllerTest : TestBase
         string firstOrgId = await CreateOrganization();
         string secondOrgId = await CreateOrganization();
 
-        string firstOrgMemberId = await CreateMember(firstOrgId);
-        string secondOrgMemberId = await CreateMember(secondOrgId);
+        await CreateMember(firstOrgId);
+        await CreateMember(secondOrgId);
 
 
         HttpResponseMessage response = await Client.GetAsync($"{MemberApi}/user/{DefaultTestUserId}");

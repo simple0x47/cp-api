@@ -20,6 +20,7 @@ public class MemberController : ControllerBase
     [Route("api/[controller]")]
     [HttpPost]
     [Authorize]
+    [DevOnly]
     public async Task<IActionResult> Create([FromBody] PartialMember partialMember)
     {
         Result<string, Error<ErrorKind>> createMemberResult = await _memberManager.Create(partialMember);
@@ -39,6 +40,7 @@ public class MemberController : ControllerBase
     [Route("api/[controller]/{id}")]
     [HttpGet]
     [Authorize]
+    [DevOnly]
     public async Task<IActionResult> Read([FromRoute] string id)
     {
         Result<Member, Error<ErrorKind>> readResult = await _memberManager.Read(id);
@@ -58,6 +60,7 @@ public class MemberController : ControllerBase
     [Route("api/[controller]")]
     [HttpPatch]
     [Authorize]
+    [DevOnly]
     public async Task<IActionResult> Update([FromBody] Member idMember)
     {
         Result<Empty, Error<ErrorKind>> updateResult = await _memberManager.Update(idMember);

@@ -21,6 +21,7 @@ public class OrganizationController
 
     [HttpPost]
     [Authorize]
+    [DevOnly]
     public async Task<IActionResult> Post([FromBody] PartialOrganization org)
     {
         Result<string, Error<ErrorKind>> result = await _orgManager.Create(org);

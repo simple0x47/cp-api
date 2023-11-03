@@ -30,7 +30,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Frontend",
         policy =>
         {
-            policy.WithOrigins(builder.Configuration.GetValue<string[]>("Cors:Origins")).AllowAnyHeader()
+            policy.WithOrigins(builder.Configuration.GetSection("Cors").GetSection("Origins").Get<string[]>())
+                .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();
         });
@@ -75,6 +76,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseCors();
 app.MapControllers();
 
 app.Run();

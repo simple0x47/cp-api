@@ -28,7 +28,7 @@ public class AuthenticationController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, error.Message);
         }
 
-        return Ok(JsonConvert.SerializeObject(result));
+        return Ok(JsonConvert.SerializeObject(result.Unwrap()));
     }
 
     [Route("api/[controller]/login")]
@@ -44,6 +44,6 @@ public class AuthenticationController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, error.Message);
         }
 
-        return Ok(JsonConvert.SerializeObject(result));
+        return Ok(JsonConvert.SerializeObject(result.Unwrap()));
     }
 }

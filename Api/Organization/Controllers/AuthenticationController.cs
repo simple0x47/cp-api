@@ -1,5 +1,6 @@
 using Core;
 using Cuplan.Organization.Models.Authentication;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -16,6 +17,7 @@ public class AuthenticationController : ControllerBase
     }
 
     [Route("api/[controller]/register-creating-org")]
+    [EnableCors("Frontend")]
     [HttpPost]
     public async Task<IActionResult> RegisterCreatingOrg([FromBody] RegisterCreatingOrgPayload payload)
     {
@@ -32,6 +34,7 @@ public class AuthenticationController : ControllerBase
     }
 
     [Route("api/[controller]/login")]
+    [EnableCors("Frontend")]
     [HttpPost]
     public async Task<IActionResult> Login([FromBody] LoginPayload payload)
     {

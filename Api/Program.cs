@@ -25,6 +25,17 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend",
+        policy =>
+        {
+            policy.WithOrigins(builder.Configuration.GetValue<string[]>("Cors:Origins")).AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+});
+
 Initialization initialization = new(builder);
 
 // Add services to the container.

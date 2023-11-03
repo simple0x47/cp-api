@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Cuplan.Organization.ControllerModels;
 using Cuplan.Organization.Models;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
@@ -104,12 +105,12 @@ public class MemberControllerTest : TestBase
     public async Task GetAllMembersForUserId_ValidUserIdWithNoMemberships_EmptyArray()
     {
         HttpResponseMessage response = await Client.GetAsync($"{MemberApi}/user/{DefaultTestUserId}");
-        Member[]? memberships = await response.Content.ReadFromJsonAsync<Member[]>();
+        WrappedResult<Member[]>? memberships = await response.Content.ReadFromJsonAsync<WrappedResult<Member[]>>();
 
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.NotNull(memberships);
-        Assert.Empty(memberships);
+        Assert.Empty(memberships.Result);
     }
 
     private async Task<string> CreateOrganization()

@@ -2,10 +2,16 @@ using Core.Secrets;
 
 namespace Organization;
 
-public class Initialization(WebApplicationBuilder builder)
+public class Initialization
 {
-    private readonly WebApplicationBuilder _builder = builder;
-    private readonly ISecretsManager _secretsManager = new BitwardenSecretsManager(null);
+    private readonly WebApplicationBuilder _builder;
+    private readonly ISecretsManager _secretsManager;
+
+    public Initialization(WebApplicationBuilder builder)
+    {
+        _builder = builder;
+        _secretsManager = new BitwardenSecretsManager(null);
+    }
 
     public string GetMongoDbUri()
     {

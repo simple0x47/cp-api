@@ -100,6 +100,18 @@ public class MemberControllerTest : TestBase
         Assert.Equal(expectedMembershipsLength, memberships.Length);
     }
 
+    [Fact]
+    public async Task GetAllMembersForUserId_ValidUserIdWithNoMemberships_EmptyArray()
+    {
+        HttpResponseMessage response = await Client.GetAsync($"{MemberApi}/user/{DefaultTestUserId}");
+        Member[]? memberships = await response.Content.ReadFromJsonAsync<Member[]>();
+
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(memberships);
+        Assert.Empty(memberships);
+    }
+
     private async Task<string> CreateOrganization()
     {
         PartialOrganization exampleOrg =

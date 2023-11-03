@@ -1,4 +1,5 @@
 using Core;
+using Cuplan.Organization.ControllerModels;
 using Cuplan.Organization.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -87,6 +88,8 @@ public class MemberController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, error.Message);
         }
 
-        return Ok(JsonConvert.SerializeObject(result.Unwrap()));
+        // WrappedResult required because Javascript JSON cannot handle deserializing directly empty arrays if they
+        // are not contained within an object.
+        return Ok(JsonConvert.SerializeObject(new WrappedResult<Member[]>(result.Unwrap())));
     }
 }

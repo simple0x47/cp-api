@@ -90,15 +90,15 @@ public class MemberControllerTest : TestBase
 
 
         HttpResponseMessage response = await Client.GetAsync($"{MemberApi}/user/{DefaultTestUserId}");
-        Member[]? memberships = await response.Content.ReadFromJsonAsync<Member[]>();
+        WrappedResult<Member[]>? memberships = await response.Content.ReadFromJsonAsync<WrappedResult<Member[]>>();
 
 
         Assert.NotNull(memberships);
-        foreach (Member member in memberships)
+        foreach (Member member in memberships.Result)
             if (member.OrgId != firstOrgId && member.OrgId != secondOrgId)
                 Assert.Fail($"User id '{member.UserId}' is member of an unexpected organization '{member.OrgId}'");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal(expectedMembershipsLength, memberships.Length);
+        Assert.Equal(expectedMembershipsLength, memberships.Result.Length);
     }
 
     [Fact]

@@ -91,6 +91,10 @@ public class Auth0Provider : IAuthProvider
             await _client.PostAsync($"{_identityProviderUrl}{LoginEndpoint}", JsonContent.Create(payload));
         string content = await response.Content.ReadAsStringAsync();
 
+        if (response.StatusCode == HttpStatusCode.Forbidden)
+            return Result<LoginSuccessPayload, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.InvalidData,
+                "invalid email or password"));
+
         if (response.StatusCode != HttpStatusCode.OK)
             return Result<LoginSuccessPayload, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.ServiceError,
                 $"login result is not 'Ok': {content}"));

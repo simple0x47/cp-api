@@ -44,6 +44,9 @@ public class AuthenticationController : ControllerBase
         {
             Error<ErrorKind> error = result.UnwrapErr();
 
+            if (error.ErrorKind == ErrorKind.InvalidData)
+                return StatusCode(StatusCodes.Status403Forbidden, error.Message);
+
             return StatusCode(StatusCodes.Status500InternalServerError, error.Message);
         }
 

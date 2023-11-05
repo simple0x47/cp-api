@@ -19,6 +19,9 @@ public class OrganizationManager
     /// <returns>Organization's id or an error.</returns>
     public async Task<Result<string, Error<ErrorKind>>> Create(PartialOrganization org)
     {
+        // Avoid permission injection at creation.
+        org.Permissions = Array.Empty<string>();
+
         Result<string, Error<ErrorKind>> result = await _repository.Create(org);
 
         return result;

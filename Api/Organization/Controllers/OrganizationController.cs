@@ -24,7 +24,7 @@ public class OrganizationController
     [DevOnly]
     public async Task<IActionResult> Post([FromBody] PartialOrganization org)
     {
-        Result<string, Error<ErrorKind>> result = await _orgManager.Create(org);
+        Result<string, Error<string>> result = await _orgManager.Create(org);
 
         return result.Match<IActionResult>(
             orgId => { return Ok(orgId); },

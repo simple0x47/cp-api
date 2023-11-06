@@ -10,12 +10,12 @@ public interface IAuthProvider
     /// </summary>
     /// <param name="signUp"></param>
     /// <returns>The user id or an error.</returns>
-    public Task<Result<string, Error<ErrorKind>>> SignUp(SignUpPayload signUp);
+    public Task<Result<string, Error<string>>> SignUp(SignUpPayload signUp);
 
     /// <summary>
     ///     Logs in an user for the specified payload.
     /// </summary>
     /// <param name="login"></param>
     /// <returns>A <see cref="LoginSuccessPayload" /> or an error.</returns>
-    public Task<Result<LoginSuccessPayload, Error<ErrorKind>>> Login(LoginPayload login);
+    public Task<Result<LoginSuccessPayload, Error<string>>> Login(LoginPayload login);
 }

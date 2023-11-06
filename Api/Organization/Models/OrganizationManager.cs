@@ -17,12 +17,12 @@ public class OrganizationManager
     /// </summary>
     /// <param name="org"></param>
     /// <returns>Organization's id or an error.</returns>
-    public async Task<Result<string, Error<ErrorKind>>> Create(PartialOrganization org)
+    public async Task<Result<string, Error<string>>> Create(PartialOrganization org)
     {
         // Avoid permission injection at creation.
         org.Permissions = Array.Empty<string>();
 
-        Result<string, Error<ErrorKind>> result = await _repository.Create(org);
+        Result<string, Error<string>> result = await _repository.Create(org);
 
         return result;
     }

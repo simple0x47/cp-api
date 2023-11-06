@@ -25,7 +25,7 @@ public class RoleRepository : IRoleRepository
             TimeSpan.FromSeconds(config.GetDoubleOrDefault("GetAdminRoleIdTimeout", DefaultTimeoutAfterSeconds));
     }
 
-    public async Task<Result<Models.Role, Error<ErrorKind>>> GetAdminRole()
+    public async Task<Result<Models.Role, Error<string>>> GetAdminRole()
     {
         try
         {
@@ -33,39 +33,39 @@ public class RoleRepository : IRoleRepository
                 .WaitAsync(_getAdminRoleIdTimeout);
 
             if (cursor is null)
-                return Result<Models.Role, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
+                return Result<Models.Role, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
                     "find async cursor is null"));
 
             bool hasNext = await cursor.MoveNextAsync().WaitAsync(_getAdminRoleIdTimeout);
 
             if (!hasNext)
-                return Result<Models.Role, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.NotFound,
+                return Result<Models.Role, Error<string>>.Err(new Error<string>(ErrorKind.NotFound,
                     "could not find the admin role"));
 
             Role? role = cursor.Current.FirstOrDefault();
 
             if (role is null)
-                return Result<Models.Role, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.NotFound,
+                return Result<Models.Role, Error<string>>.Err(new Error<string>(ErrorKind.NotFound,
                     "could not find the admin role"));
 
-            return Result<Models.Role, Error<ErrorKind>>.Ok(role);
+            return Result<Models.Role, Error<string>>.Ok(role);
         }
         catch (TimeoutException)
         {
             string message = "timed out getting the admin role";
             _logger.LogInformation(message);
-            return Result<Models.Role, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.TimedOut, message));
+            return Result<Models.Role, Error<string>>.Err(new Error<string>(ErrorKind.TimedOut, message));
         }
         catch (Exception e)
         {
             string message = $"failed to get the admin role: {e}";
             _logger.LogInformation(message);
-            return Result<Models.Role, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
+            return Result<Models.Role, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
                 message));
         }
     }
 
-    public async Task<Result<IEnumerable<Models.Role>, Error<ErrorKind>>> FindByIds(IEnumerable<string> ids)
+    public async Task<Result<IEnumerable<Models.Role>, Error<string>>> FindByIds(IEnumerable<string> ids)
     {
         try
         {
@@ -73,7 +73,7 @@ public class RoleRepository : IRoleRepository
                 .WaitAsync(_getAdminRoleIdTimeout);
 
             if (roles is null)
-                return Result<IEnumerable<Models.Role>, Error<ErrorKind>>.Err(new Error<ErrorKind>(
+                return Result<IEnumerable<Models.Role>, Error<string>>.Err(new Error<string>(
                     ErrorKind.StorageError,
                     "'roles' is null"));
 
@@ -81,20 +81,20 @@ public class RoleRepository : IRoleRepository
 
             foreach (Role role in roles) modelsRole.Add(role);
 
-            return Result<IEnumerable<Models.Role>, Error<ErrorKind>>.Ok(modelsRole);
+            return Result<IEnumerable<Models.Role>, Error<string>>.Ok(modelsRole);
         }
         catch (TimeoutException)
         {
             string message = "timed out finding roles by ids";
             _logger.LogInformation(message);
-            return Result<IEnumerable<Models.Role>, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.TimedOut,
+            return Result<IEnumerable<Models.Role>, Error<string>>.Err(new Error<string>(ErrorKind.TimedOut,
                 message));
         }
         catch (Exception e)
         {
             string message = $"failed to find roles by ids: {e}";
             _logger.LogInformation(message);
-            return Result<IEnumerable<Models.Role>, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
+            return Result<IEnumerable<Models.Role>, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
                 message));
         }
     }

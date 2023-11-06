@@ -3,7 +3,6 @@ using Core;
 using Core.Secrets;
 using Cuplan.Organization.Models.Authentication;
 using Cuplan.Organization.ServiceModels.Auth0;
-using Newtonsoft.Json;
 using LoginPayload = Cuplan.Organization.Models.Authentication.LoginPayload;
 using SignUpPayload = Cuplan.Organization.Models.Authentication.SignUpPayload;
 
@@ -47,7 +46,7 @@ public class Auth0Provider : IAuthProvider
         _client = new HttpClient();
     }
 
-    public async Task<Result<string, Error<ErrorKind>>> SignUp(SignUpPayload signUp)
+    public async Task<Result<string, Error<string>>> SignUp(SignUpPayload signUp)
     {
         ServiceModels.Auth0.SignUpPayload payload = new();
         payload.client_id = _clientId;
@@ -57,24 +56,22 @@ public class Auth0Provider : IAuthProvider
 
         HttpResponseMessage response =
             await _client.PostAsync($"{_identityProviderUrl}{SignUpEndpoint}", JsonContent.Create(payload));
-        string content = await response.Content.ReadAsStringAsync();
 
         if (response.StatusCode != HttpStatusCode.OK)
-            return Result<string, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.ServiceError,
-                content));
+            return await HandleAuth0ErrorResponse<string>(response);
 
-        SignUpOkResponse okResponse = JsonConvert.DeserializeObject<SignUpOkResponse>(content);
+        SignUpOkResponse? okResponse = await response.Content.ReadFromJsonAsync<SignUpOkResponse>();
 
-        if (okResponse._id is null)
-            return Result<string, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.ServiceError,
-                "response contains no '_id'"));
+        if (okResponse is null)
+            return Result<string, Error<string>>.Err(new Error<string>(ErrorKind.OkResponseNull,
+                "deserialized ok response is null"));
 
         // the prefix is added so the ids represented within the tokens are equal to the ones used
         // within Cuplan.
-        return Result<string, Error<ErrorKind>>.Ok($"{IdPrefix}{okResponse._id}");
+        return Result<string, Error<string>>.Ok($"{IdPrefix}{okResponse.Value._id}");
     }
 
-    public async Task<Result<LoginSuccessPayload, Error<ErrorKind>>> Login(LoginPayload login)
+    public async Task<Result<LoginSuccessPayload, Error<string>>> Login(LoginPayload login)
     {
         ServiceModels.Auth0.LoginPayload payload = new()
         {
@@ -89,24 +86,31 @@ public class Auth0Provider : IAuthProvider
 
         HttpResponseMessage response =
             await _client.PostAsync($"{_identityProviderUrl}{LoginEndpoint}", JsonContent.Create(payload));
-        string content = await response.Content.ReadAsStringAsync();
-
-        if (response.StatusCode == HttpStatusCode.Forbidden)
-            return Result<LoginSuccessPayload, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.InvalidData,
-                "invalid email or password"));
 
         if (response.StatusCode != HttpStatusCode.OK)
-            return Result<LoginSuccessPayload, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.ServiceError,
-                $"login result is not 'Ok': {content}"));
+            return await HandleAuth0ErrorResponse<LoginSuccessPayload>(response);
 
-        LoginOkResponse? okResponse = JsonConvert.DeserializeObject<LoginOkResponse>(content);
+        LoginOkResponse? okResponse = await response.Content.ReadFromJsonAsync<LoginOkResponse>();
 
         if (okResponse is null)
-            return Result<LoginSuccessPayload, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.ServiceError,
-                $"deserialized ok response is null: {content}"));
+            return Result<LoginSuccessPayload, Error<string>>.Err(new Error<string>(ErrorKind.OkResponseNull,
+                "deserialized ok response is null"));
 
         LoginSuccessPayload successPayload = (LoginSuccessPayload)okResponse;
 
-        return Result<LoginSuccessPayload, Error<ErrorKind>>.Ok(successPayload);
+        return Result<LoginSuccessPayload, Error<string>>.Ok(successPayload);
+    }
+
+    private async Task<Result<TOk, Error<string>>> HandleAuth0ErrorResponse<TOk>(
+        HttpResponseMessage response)
+    {
+        Auth0ErrorResponse? errorResponse = await response.Content.ReadFromJsonAsync<Auth0ErrorResponse>();
+
+        if (errorResponse is null)
+            return Result<TOk, Error<string>>.Err(new Error<string>(ErrorKind.ErrorResponseNull,
+                "deserialized error response is null"));
+
+        return Result<TOk, Error<string>>.Err(new Error<string>(errorResponse.Value.error,
+            errorResponse.Value.error_description));
     }
 }

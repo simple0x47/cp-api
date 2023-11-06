@@ -10,12 +10,12 @@ public interface IOrganizationRepository
     /// </summary>
     /// <param name="partialOrg">The organization to be created.</param>
     /// <returns>Id of the created organization or an error.</returns>
-    public Task<Result<string, Error<ErrorKind>>> Create(PartialOrganization partialOrg);
+    public Task<Result<string, Error<string>>> Create(PartialOrganization partialOrg);
 
     /// <summary>
     ///     Finds an organization by its id, returning the organization if it is found.
     /// </summary>
     /// <param name="id"></param>
     /// <returns>The <see cref="Organization" /> whose id has been specified or an error.</returns>
-    public Task<Result<Models.Organization, Error<ErrorKind>>> FindById(string id);
+    public Task<Result<Models.Organization, Error<string>>> FindById(string id);
 }

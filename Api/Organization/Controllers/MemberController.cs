@@ -23,11 +23,11 @@ public class MemberController : ControllerBase
     [DevOnly]
     public async Task<IActionResult> Create([FromBody] PartialMember partialMember)
     {
-        Result<string, Error<ErrorKind>> createMemberResult = await _memberManager.Create(partialMember);
+        Result<string, Error<string>> createMemberResult = await _memberManager.Create(partialMember);
 
         if (!createMemberResult.IsOk)
         {
-            Error<ErrorKind> error = createMemberResult.UnwrapErr();
+            Error<string> error = createMemberResult.UnwrapErr();
 
             if (error.ErrorKind == ErrorKind.NotFound) return BadRequest("org id not found");
 
@@ -43,11 +43,11 @@ public class MemberController : ControllerBase
     [DevOnly]
     public async Task<IActionResult> Read([FromRoute] string id)
     {
-        Result<Member, Error<ErrorKind>> readResult = await _memberManager.Read(id);
+        Result<Member, Error<string>> readResult = await _memberManager.Read(id);
 
         if (!readResult.IsOk)
         {
-            Error<ErrorKind> error = readResult.UnwrapErr();
+            Error<string> error = readResult.UnwrapErr();
 
             if (error.ErrorKind == ErrorKind.NotFound) return BadRequest("member id not found");
 
@@ -63,11 +63,11 @@ public class MemberController : ControllerBase
     [DevOnly]
     public async Task<IActionResult> Update([FromBody] Member idMember)
     {
-        Result<Empty, Error<ErrorKind>> updateResult = await _memberManager.Update(idMember);
+        Result<Empty, Error<string>> updateResult = await _memberManager.Update(idMember);
 
         if (!updateResult.IsOk)
         {
-            Error<ErrorKind> error = updateResult.UnwrapErr();
+            Error<string> error = updateResult.UnwrapErr();
 
             if (error.ErrorKind == ErrorKind.NotFound) return BadRequest("member id not found");
 
@@ -82,11 +82,11 @@ public class MemberController : ControllerBase
     [Authorize]
     public async Task<IActionResult> ReadMembersByUserId([FromRoute] string userId)
     {
-        Result<Member[], Error<ErrorKind>> result = await _memberManager.ReadMembersByUserId(userId);
+        Result<Member[], Error<string>> result = await _memberManager.ReadMembersByUserId(userId);
 
         if (!result.IsOk)
         {
-            Error<ErrorKind> error = result.UnwrapErr();
+            Error<string> error = result.UnwrapErr();
 
             return StatusCode(StatusCodes.Status500InternalServerError, error.Message);
         }

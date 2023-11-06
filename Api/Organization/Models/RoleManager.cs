@@ -15,7 +15,7 @@ public class RoleManager
     /// <summary>
     /// </summary>
     /// <returns></returns>
-    public async Task<Result<Role, Error<ErrorKind>>> GetAdminRole()
+    public async Task<Result<Role, Error<string>>> GetAdminRole()
     {
         return await _repository.GetAdminRole();
     }

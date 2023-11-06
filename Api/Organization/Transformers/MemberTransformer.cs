@@ -9,12 +9,12 @@ namespace Cuplan.Organization.Transformers;
 /// </summary>
 public static class MemberTransformer
 {
-    public static async Task<Result<Member, Error<ErrorKind>>> Transform(this ServiceModels.Member member,
+    public static async Task<Result<Member, Error<string>>> Transform(this ServiceModels.Member member,
         IRoleRepository roleRepository)
     {
-        Result<IEnumerable<Role>, Error<ErrorKind>> rolesResult = await roleRepository.FindByIds(member.Roles);
+        Result<IEnumerable<Role>, Error<string>> rolesResult = await roleRepository.FindByIds(member.Roles);
 
-        if (!rolesResult.IsOk) return Result<Member, Error<ErrorKind>>.Err(rolesResult.UnwrapErr());
+        if (!rolesResult.IsOk) return Result<Member, Error<string>>.Err(rolesResult.UnwrapErr());
 
         IEnumerable<Role> roles = rolesResult.Unwrap();
 
@@ -27,6 +27,6 @@ public static class MemberTransformer
             UserId = member.UserId
         };
 
-        return Result<Member, Error<ErrorKind>>.Ok(modelsMember);
+        return Result<Member, Error<string>>.Ok(modelsMember);
     }
 }

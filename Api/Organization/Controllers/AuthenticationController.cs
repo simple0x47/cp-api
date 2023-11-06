@@ -21,13 +21,13 @@ public class AuthenticationController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> RegisterCreatingOrg([FromBody] RegisterCreatingOrgPayload payload)
     {
-        Result<LoginSuccessPayload, Error<ErrorKind>> result = await _authenticator.RegisterCreatingOrg(payload);
+        Result<LoginSuccessPayload, Error<string>> result = await _authenticator.RegisterCreatingOrg(payload);
 
         if (!result.IsOk)
         {
-            Error<ErrorKind> error = result.UnwrapErr();
+            Error<string> error = result.UnwrapErr();
 
-            return StatusCode(StatusCodes.Status500InternalServerError, error.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, error.ErrorKind);
         }
 
         return Ok(JsonConvert.SerializeObject(result.Unwrap()));
@@ -38,16 +38,13 @@ public class AuthenticationController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Login([FromBody] LoginPayload payload)
     {
-        Result<LoginSuccessPayload, Error<ErrorKind>> result = await _authenticator.Login(payload);
+        Result<LoginSuccessPayload, Error<string>> result = await _authenticator.Login(payload);
 
         if (!result.IsOk)
         {
-            Error<ErrorKind> error = result.UnwrapErr();
+            Error<string> error = result.UnwrapErr();
 
-            if (error.ErrorKind == ErrorKind.InvalidData)
-                return StatusCode(StatusCodes.Status403Forbidden, error.Message);
-
-            return StatusCode(StatusCodes.Status500InternalServerError, error.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, error.ErrorKind);
         }
 
         return Ok(JsonConvert.SerializeObject(result.Unwrap()));

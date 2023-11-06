@@ -47,7 +47,7 @@ public class MemberRepository : IMemberRepository
                 DefaultTimeoutAfterSeconds));
     }
 
-    public async Task<Result<Empty, Error<ErrorKind>>> SetPermissions(string memberId, IEnumerable<string> permissions)
+    public async Task<Result<Empty, Error<string>>> SetPermissions(string memberId, IEnumerable<string> permissions)
     {
         try
         {
@@ -60,26 +60,26 @@ public class MemberRepository : IMemberRepository
                 .WaitAsync(_setPermissionsTimeout);
 
             if (result.ModifiedCount != 1)
-                return Result<Empty, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.NotFound,
+                return Result<Empty, Error<string>>.Err(new Error<string>(ErrorKind.NotFound,
                     $"member with id '{memberId}' not found"));
 
-            return Result<Empty, Error<ErrorKind>>.Ok(new Empty());
+            return Result<Empty, Error<string>>.Ok(new Empty());
         }
         catch (TimeoutException)
         {
             string message = "timed out setting permissions";
             _logger.LogInformation(message);
-            return Result<Empty, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.TimedOut, message));
+            return Result<Empty, Error<string>>.Err(new Error<string>(ErrorKind.TimedOut, message));
         }
         catch (Exception e)
         {
             string message = $"failed to set permissions: {e}";
             _logger.LogInformation(message);
-            return Result<Empty, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError, message));
+            return Result<Empty, Error<string>>.Err(new Error<string>(ErrorKind.StorageError, message));
         }
     }
 
-    public async Task<Result<Empty, Error<ErrorKind>>> SetRoles(string memberId, IEnumerable<string> roles)
+    public async Task<Result<Empty, Error<string>>> SetRoles(string memberId, IEnumerable<string> roles)
     {
         try
         {
@@ -91,46 +91,46 @@ public class MemberRepository : IMemberRepository
             UpdateResult result = await _collection.UpdateOneAsync(filter, update)
                 .WaitAsync(_setRolesTimeout);
 
-            return Result<Empty, Error<ErrorKind>>.Ok(new Empty());
+            return Result<Empty, Error<string>>.Ok(new Empty());
         }
         catch (TimeoutException)
         {
             string message = "timed out setting roles";
             _logger.LogInformation(message);
-            return Result<Empty, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.TimedOut, message));
+            return Result<Empty, Error<string>>.Err(new Error<string>(ErrorKind.TimedOut, message));
         }
         catch (Exception e)
         {
             string message = $"failed to set roles: {e}";
             _logger.LogInformation(message);
-            return Result<Empty, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError, message));
+            return Result<Empty, Error<string>>.Err(new Error<string>(ErrorKind.StorageError, message));
         }
     }
 
-    public async Task<Result<string, Error<ErrorKind>>> Create(PartialMember partialMember)
+    public async Task<Result<string, Error<string>>> Create(PartialMember partialMember)
     {
         try
         {
             Member member = new(partialMember);
 
             await _collection.InsertOneAsync(member).WaitAsync(_createTimeout);
-            return Result<string, Error<ErrorKind>>.Ok(member.Id.ToString());
+            return Result<string, Error<string>>.Ok(member.Id.ToString());
         }
         catch (TimeoutException)
         {
             string message = "timed out creating member";
             _logger.LogInformation(message);
-            return Result<string, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.TimedOut, message));
+            return Result<string, Error<string>>.Err(new Error<string>(ErrorKind.TimedOut, message));
         }
         catch (Exception e)
         {
             string message = $"failed to create member: {e}";
             _logger.LogInformation(message);
-            return Result<string, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError, message));
+            return Result<string, Error<string>>.Err(new Error<string>(ErrorKind.StorageError, message));
         }
     }
 
-    public async Task<Result<Models.Member, Error<ErrorKind>>> FindById(string memberId)
+    public async Task<Result<Models.Member, Error<string>>> FindById(string memberId)
     {
         try
         {
@@ -140,45 +140,45 @@ public class MemberRepository : IMemberRepository
                     .WaitAsync(_findByIdTimeout);
 
             if (cursor is null)
-                return Result<Models.Member, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
+                return Result<Models.Member, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
                     "find async cursor is null"));
 
             bool hasNext = await cursor.MoveNextAsync().WaitAsync(_findByIdTimeout);
 
             if (!hasNext)
-                return Result<Models.Member, Error<ErrorKind>>.Err(
-                    new Error<ErrorKind>(ErrorKind.NotFound, $"could not find member by id '{memberId}'"));
+                return Result<Models.Member, Error<string>>.Err(
+                    new Error<string>(ErrorKind.NotFound, $"could not find member by id '{memberId}'"));
 
             Member? idMember = cursor.Current.FirstOrDefault();
 
             if (idMember is null)
-                return Result<Models.Member, Error<ErrorKind>>.Err(
-                    new Error<ErrorKind>(ErrorKind.NotFound, $"could not find member by id '{memberId}'"));
+                return Result<Models.Member, Error<string>>.Err(
+                    new Error<string>(ErrorKind.NotFound, $"could not find member by id '{memberId}'"));
 
-            Result<Models.Member, Error<ErrorKind>> modelsMemberResult = await idMember.Transform(_roleRepository);
+            Result<Models.Member, Error<string>> modelsMemberResult = await idMember.Transform(_roleRepository);
 
             if (!modelsMemberResult.IsOk)
-                return Result<Models.Member, Error<ErrorKind>>.Err(modelsMemberResult.UnwrapErr());
+                return Result<Models.Member, Error<string>>.Err(modelsMemberResult.UnwrapErr());
 
-            return Result<Models.Member, Error<ErrorKind>>.Ok(modelsMemberResult.Unwrap());
+            return Result<Models.Member, Error<string>>.Ok(modelsMemberResult.Unwrap());
         }
         catch (TimeoutException)
         {
             string message = "timed out finding member by id";
             _logger.LogInformation(message);
-            return Result<Models.Member, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.TimedOut,
+            return Result<Models.Member, Error<string>>.Err(new Error<string>(ErrorKind.TimedOut,
                 message));
         }
         catch (Exception e)
         {
             string message = $"failed to find member by id: {e}";
             _logger.LogInformation(message);
-            return Result<Models.Member, Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
+            return Result<Models.Member, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
                 message));
         }
     }
 
-    public async Task<Result<Models.Member[], Error<ErrorKind>>> FindByUserId(string userId)
+    public async Task<Result<Models.Member[], Error<string>>> FindByUserId(string userId)
     {
         try
         {
@@ -191,29 +191,29 @@ public class MemberRepository : IMemberRepository
 
             foreach (Member member in members)
             {
-                Result<Models.Member, Error<ErrorKind>> modelsMemberResult = await member.Transform(_roleRepository);
+                Result<Models.Member, Error<string>> modelsMemberResult = await member.Transform(_roleRepository);
 
                 if (!modelsMemberResult.IsOk)
-                    return Result<Models.Member[], Error<ErrorKind>>.Err(modelsMemberResult.UnwrapErr());
+                    return Result<Models.Member[], Error<string>>.Err(modelsMemberResult.UnwrapErr());
 
                 modelsMembers[i] = modelsMemberResult.Unwrap();
                 i++;
             }
 
-            return Result<Models.Member[], Error<ErrorKind>>.Ok(modelsMembers);
+            return Result<Models.Member[], Error<string>>.Ok(modelsMembers);
         }
         catch (TimeoutException)
         {
             string message = "timed out finding members by user id";
             _logger.LogInformation(message);
-            return Result<Models.Member[], Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.TimedOut,
+            return Result<Models.Member[], Error<string>>.Err(new Error<string>(ErrorKind.TimedOut,
                 message));
         }
         catch (Exception e)
         {
             string message = $"failed to find members by user id: {e}";
             _logger.LogInformation(message);
-            return Result<Models.Member[], Error<ErrorKind>>.Err(new Error<ErrorKind>(ErrorKind.StorageError,
+            return Result<Models.Member[], Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
                 message));
         }
     }

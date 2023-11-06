@@ -21,11 +21,11 @@ public class RoleController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetAdminRole()
     {
-        Result<Role, Error<ErrorKind>> getAdminRoleResult = await _roleManager.GetAdminRole();
+        Result<Role, Error<string>> getAdminRoleResult = await _roleManager.GetAdminRole();
 
         if (!getAdminRoleResult.IsOk)
         {
-            Error<ErrorKind> error = getAdminRoleResult.UnwrapErr();
+            Error<string> error = getAdminRoleResult.UnwrapErr();
 
             if (error.ErrorKind == ErrorKind.NotFound) return NotFound(error.Message);
 

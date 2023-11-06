@@ -14,6 +14,7 @@ public class Auth0Provider : IAuthProvider
     private const string RequiredScopes = "openid offline_access";
     private const string SignUpEndpoint = "dbconnections/signup";
     private const string LoginEndpoint = "oauth/token";
+    private const string ChangePasswordEndpoint = "dbconnections/change_password";
     private const string IdPrefix = "auth0|";
 
     private readonly HttpClient _client;
@@ -58,7 +59,7 @@ public class Auth0Provider : IAuthProvider
             await _client.PostAsync($"{_identityProviderUrl}{SignUpEndpoint}", JsonContent.Create(payload));
 
         if (response.StatusCode != HttpStatusCode.OK)
-            return await HandleAuth0ErrorResponse<string>(response);
+            return await HandleRegisterAuth0ErrorResponse(response);
 
         SignUpOkResponse? okResponse = await response.Content.ReadFromJsonAsync<SignUpOkResponse>();
 
@@ -88,7 +89,7 @@ public class Auth0Provider : IAuthProvider
             await _client.PostAsync($"{_identityProviderUrl}{LoginEndpoint}", JsonContent.Create(payload));
 
         if (response.StatusCode != HttpStatusCode.OK)
-            return await HandleAuth0ErrorResponse<LoginSuccessPayload>(response);
+            return await HandleLoginAuth0ErrorResponse(response);
 
         LoginOkResponse? okResponse = await response.Content.ReadFromJsonAsync<LoginOkResponse>();
 
@@ -101,16 +102,47 @@ public class Auth0Provider : IAuthProvider
         return Result<LoginSuccessPayload, Error<string>>.Ok(successPayload);
     }
 
-    private async Task<Result<TOk, Error<string>>> HandleAuth0ErrorResponse<TOk>(
+    public async Task<Result<Empty, Error<string>>> ForgotPassword(ForgotPasswordPayload forgotPassword)
+    {
+        ChangePasswordPayload payload = new()
+        {
+            client_id = _clientId,
+            connection = _database,
+            email = forgotPassword.Email
+        };
+
+        HttpResponseMessage response = await _client.PostAsync($"{_identityProviderUrl}{ChangePasswordEndpoint}",
+            JsonContent.Create(payload));
+
+        if (response.StatusCode != HttpStatusCode.OK)
+            return Result<Empty, Error<string>>.Err(new Error<string>(ErrorKind.UnknownError,
+                "Auth0 replied with a non-ok response"));
+
+        return Result<Empty, Error<string>>.Ok(new Empty());
+    }
+
+    private async Task<Result<string, Error<string>>> HandleRegisterAuth0ErrorResponse(HttpResponseMessage response)
+    {
+        RegisterAuth0ErrorResponse errorResponse =
+            await response.Content.ReadFromJsonAsync<RegisterAuth0ErrorResponse>();
+
+        if (errorResponse.code is null)
+            return Result<string, Error<string>>.Err(new Error<string>(ErrorKind.ErrorResponseNull,
+                "deserialized 'code' is null"));
+
+        return Result<string, Error<string>>.Err(new Error<string>(errorResponse.code, errorResponse.description));
+    }
+
+    private async Task<Result<LoginSuccessPayload, Error<string>>> HandleLoginAuth0ErrorResponse(
         HttpResponseMessage response)
     {
-        Auth0ErrorResponse? errorResponse = await response.Content.ReadFromJsonAsync<Auth0ErrorResponse>();
+        LoginAuth0ErrorResponse errorResponse = await response.Content.ReadFromJsonAsync<LoginAuth0ErrorResponse>();
 
-        if (errorResponse is null)
-            return Result<TOk, Error<string>>.Err(new Error<string>(ErrorKind.ErrorResponseNull,
-                "deserialized error response is null"));
+        if (errorResponse.error is null)
+            return Result<LoginSuccessPayload, Error<string>>.Err(new Error<string>(ErrorKind.ErrorResponseNull,
+                "deserialized 'error' is null"));
 
-        return Result<TOk, Error<string>>.Err(new Error<string>(errorResponse.Value.error,
-            errorResponse.Value.error_description));
+        return Result<LoginSuccessPayload, Error<string>>.Err(new Error<string>(errorResponse.error,
+            errorResponse.error_description));
     }
 }

@@ -81,4 +81,15 @@ public class Authenticator
 
         return result;
     }
+
+    public async Task<Result<Empty, Error<string>>> ForgotPassword(ForgotPasswordPayload payload)
+    {
+        if (!Validation.IsEmailValid(payload.Email))
+            return Result<Empty, Error<string>>.Err(new Error<string>(ErrorKind.InvalidCredentials,
+                "'email' is invalid."));
+
+        Result<Empty, Error<string>> result = await _authProvider.ForgotPassword(payload);
+
+        return result;
+    }
 }

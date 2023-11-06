@@ -49,4 +49,21 @@ public class AuthenticationController : ControllerBase
 
         return Ok(JsonConvert.SerializeObject(result.Unwrap()));
     }
+
+    [Route("api/[controller]/forgot-password")]
+    [EnableCors("Frontend")]
+    [HttpPost]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordPayload payload)
+    {
+        Result<Empty, Error<string>> result = await _authenticator.ForgotPassword(payload);
+
+        if (!result.IsOk)
+        {
+            Error<string> error = result.UnwrapErr();
+
+            return StatusCode(StatusCodes.Status500InternalServerError, error.ErrorKind);
+        }
+
+        return NoContent();
+    }
 }

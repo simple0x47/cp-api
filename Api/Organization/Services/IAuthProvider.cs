@@ -18,4 +18,11 @@ public interface IAuthProvider
     /// <param name="login"></param>
     /// <returns>A <see cref="LoginSuccessPayload" /> or an error.</returns>
     public Task<Result<LoginSuccessPayload, Error<string>>> Login(LoginPayload login);
+
+    /// <summary>
+    ///     Begins the process of creating a new password.
+    /// </summary>
+    /// <param name="forgotPassword"></param>
+    /// <returns><see cref="Empty" /> or an error.</returns>
+    public Task<Result<Empty, Error<string>>> ForgotPassword(ForgotPasswordPayload forgotPassword);
 }

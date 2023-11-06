@@ -23,26 +23,25 @@ public class AuthenticationControllerTest : TestBase
     }
 
     [Fact]
-    public async Task SignUpCreatingOrg_ValidData_ReturnsOrgId()
+    public async Task RegisterCreatingOrg_ValidData_ReturnsOrgId()
     {
-        SignUpPayload signUp = new();
-        signUp.FullName = "Integration Test";
-        signUp.Email = $"{Guid.NewGuid().ToString()}@simpleg.eu";
-        signUp.Password = Guid.NewGuid().ToString();
-
-        RegisterCreatingOrgPayload payload = new()
-        {
-            User = signUp,
-            Org = new PartialOrganization("example",
-                new Address("ES", "Albacete", "Villarrobledo", "Calle", "85", "", "02600"), Array.Empty<string>())
-        };
-
-
-        HttpResponseMessage response =
-            await Client.PostAsync($"{AuthenticationApi}/register-creating-org", JsonContent.Create(payload));
+        HttpResponseMessage response = await RegisterCreatingOrg($"{Guid.NewGuid().ToString()}@simpleg.eu");
 
 
         AssertSuccessfulLogin(response);
+    }
+
+    [Fact]
+    public async Task RegisterCreatingOrg_AlreadyRegisteredEmail_Fails()
+    {
+        HttpResponseMessage response =
+            await RegisterCreatingOrg(SecretsManager.Get(Environment.GetEnvironmentVariable(TestLoginEmailSecretVar)));
+
+        string content = await response.Content.ReadAsStringAsync();
+
+
+        Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+        Assert.Equal("invalid_signup", content);
     }
 
     [Fact]
@@ -64,6 +63,59 @@ public class AuthenticationControllerTest : TestBase
 
 
         AssertSuccessfulLogin(response);
+    }
+
+    [Fact]
+    public async Task ForgotPassword_NonExistingUser_Succeeds()
+    {
+        ForgotPasswordPayload payload = new()
+        {
+            Email = $"{Guid.NewGuid().ToString()}@simpleg.eu"
+        };
+
+
+        HttpResponseMessage response =
+            await Client.PostAsync($"{AuthenticationApi}/forgot-password", JsonContent.Create(payload));
+
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task ForgotPassword_ExistingUser_Succeeds()
+    {
+        ForgotPasswordPayload payload = new()
+        {
+            Email = SecretsManager.Get(Environment.GetEnvironmentVariable(TestLoginEmailSecretVar))
+        };
+
+
+        HttpResponseMessage response =
+            await Client.PostAsync($"{AuthenticationApi}/forgot-password", JsonContent.Create(payload));
+
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    private async Task<HttpResponseMessage> RegisterCreatingOrg(string email)
+    {
+        SignUpPayload signUp = new();
+        signUp.FullName = "Integration Test";
+        signUp.Email = email;
+        signUp.Password = Guid.NewGuid().ToString();
+
+        RegisterCreatingOrgPayload payload = new()
+        {
+            User = signUp,
+            Org = new PartialOrganization("example",
+                new Address("ES", "Albacete", "Villarrobledo", "Calle", "85", "", "02600"), Array.Empty<string>())
+        };
+
+
+        HttpResponseMessage response =
+            await Client.PostAsync($"{AuthenticationApi}/register-creating-org", JsonContent.Create(payload));
+
+        return response;
     }
 
     private async Task AssertSuccessfulLogin(HttpResponseMessage response)

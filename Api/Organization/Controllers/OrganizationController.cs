@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Cuplan.Organization.Controllers;
 
-[Route("api/[controller]")]
 [ApiController]
 public class OrganizationController
     : ControllerBase
@@ -19,6 +18,7 @@ public class OrganizationController
         _orgManager = orgManager;
     }
 
+    [Route("api/[controller]")]
     [HttpPost]
     [Authorize]
     [DevOnly]

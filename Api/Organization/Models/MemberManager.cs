@@ -82,6 +82,19 @@ public class MemberManager
     {
         Result<Member[], Error<string>> result = await _memberRepository.FindByUserId(userId);
 
+        if (!result.IsOk) return result;
+
+        Member[] memberships = result.Unwrap();
+
+        foreach (Member membership in memberships)
+        {
+            Result<Organization, Error<string>> orgResult = await _orgRepository.FindById(membership.OrgId);
+
+            if (!orgResult.IsOk) return Result<Member[], Error<string>>.Err(orgResult.UnwrapErr());
+
+            membership.OrgName = orgResult.Unwrap().Name;
+        }
+
         return result;
     }
 }

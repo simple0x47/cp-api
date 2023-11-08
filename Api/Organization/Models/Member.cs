@@ -11,6 +11,7 @@ public class Member
     {
         Id = id;
         OrgId = orgId;
+        OrgName = null;
         UserId = userId;
         Permissions = permissions;
         Roles = roles;
@@ -21,6 +22,7 @@ public class Member
     {
         Id = id;
         OrgId = partialMember.OrgId;
+        OrgName = null;
         UserId = partialMember.UserId;
         Permissions = partialMember.Permissions;
         Roles = partialMember.Roles;
@@ -28,6 +30,7 @@ public class Member
 
     public string Id { get; set; }
     public string OrgId { get; set; }
+    public string? OrgName { get; set; }
     public string UserId { get; set; }
     public IEnumerable<string> Permissions { get; set; }
     public IEnumerable<Role> Roles { get; set; }

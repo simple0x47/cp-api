@@ -9,13 +9,13 @@ using Xunit.Abstractions;
 namespace Cuplan.IntegrationTests.Organization.Controllers;
 
 [Collection("Database")]
-public class MemberControllerTest : TestBase
+public class MembershipControllerTest : TestBase
 {
     private const string OrganizationApi = "api/Organization";
-    private const string MemberApi = "api/Member";
+    private const string MemberApi = "api/Membership";
     private const string DefaultTestUserId = "auth0|65424962449b03b525c645db";
 
-    public MemberControllerTest(WebApplicationFactory<Program> factory, ITestOutputHelper output) : base(factory,
+    public MembershipControllerTest(WebApplicationFactory<Program> factory, ITestOutputHelper output) : base(factory,
         output)
     {
     }
@@ -90,7 +90,8 @@ public class MemberControllerTest : TestBase
 
 
         HttpResponseMessage response = await Client.GetAsync($"{MemberApi}/user/{DefaultTestUserId}");
-        WrappedResult<Membership[]>? memberships = await response.Content.ReadFromJsonAsync<WrappedResult<Membership[]>>();
+        WrappedResult<Membership[]>? memberships =
+            await response.Content.ReadFromJsonAsync<WrappedResult<Membership[]>>();
 
 
         Assert.NotNull(memberships);
@@ -105,7 +106,8 @@ public class MemberControllerTest : TestBase
     public async Task GetAllMembersForUserId_ValidUserIdWithNoMemberships_EmptyArray()
     {
         HttpResponseMessage response = await Client.GetAsync($"{MemberApi}/user/{DefaultTestUserId}");
-        WrappedResult<Membership[]>? memberships = await response.Content.ReadFromJsonAsync<WrappedResult<Membership[]>>();
+        WrappedResult<Membership[]>? memberships =
+            await response.Content.ReadFromJsonAsync<WrappedResult<Membership[]>>();
 
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

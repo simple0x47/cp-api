@@ -8,11 +8,11 @@ using Newtonsoft.Json;
 namespace Cuplan.Organization.Controllers;
 
 [ApiController]
-public class MemberController : ControllerBase
+public class MembershipController : ControllerBase
 {
     private readonly MembershipManager _membershipManager;
 
-    public MemberController(MembershipManager membershipManager)
+    public MembershipController(MembershipManager membershipManager)
     {
         _membershipManager = membershipManager;
     }

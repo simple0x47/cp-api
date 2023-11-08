@@ -57,7 +57,7 @@ builder.Services.AddSingleton<IMemberRepository, MemberRepository>();
 builder.Services.AddSingleton<IAuthProvider, Auth0Provider>();
 
 // Models
-builder.Services.AddScoped<MemberManager>();
+builder.Services.AddScoped<MembershipManager>();
 builder.Services.AddScoped<OrganizationManager>();
 builder.Services.AddScoped<RoleManager>();
 builder.Services.AddScoped<Authenticator>();

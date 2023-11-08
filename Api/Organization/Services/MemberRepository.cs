@@ -4,7 +4,7 @@ using Cuplan.Organization.Transformers;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Organization.Config;
-using Member = Cuplan.Organization.ServiceModels.Member;
+using Membership = Cuplan.Organization.ServiceModels.Membership;
 
 namespace Cuplan.Organization.Services;
 
@@ -12,7 +12,7 @@ public class MemberRepository : IMemberRepository
 {
     private const double DefaultTimeoutAfterSeconds = 15;
 
-    private readonly IMongoCollection<Member> _collection;
+    private readonly IMongoCollection<Membership> _collection;
 
     private readonly TimeSpan _createTimeout;
     private readonly TimeSpan _findByIdTimeout;
@@ -27,7 +27,7 @@ public class MemberRepository : IMemberRepository
     {
         _logger = logger;
         _collection = client.GetDatabase(config.GetStringOrThrowException(ConfigurationReader.DatabaseKey))
-            .GetCollection<Member>(config.GetStringOrThrowException("MemberRepository:Collection"));
+            .GetCollection<Membership>(config.GetStringOrThrowException("MemberRepository:Collection"));
         _roleRepository = roleRepository;
 
         _createTimeout =
@@ -52,9 +52,9 @@ public class MemberRepository : IMemberRepository
         try
         {
             ObjectId id = ObjectId.Parse(memberId);
-            FilterDefinition<Member>? filter = Builders<Member>.Filter.Eq(m => m.Id, id);
-            UpdateDefinition<Member>? update =
-                Builders<Member>.Update.Set(m => m.Permissions, permissions);
+            FilterDefinition<Membership>? filter = Builders<Membership>.Filter.Eq(m => m.Id, id);
+            UpdateDefinition<Membership>? update =
+                Builders<Membership>.Update.Set(m => m.Permissions, permissions);
 
             UpdateResult result = await _collection.UpdateOneAsync(filter, update)
                 .WaitAsync(_setPermissionsTimeout);
@@ -84,9 +84,9 @@ public class MemberRepository : IMemberRepository
         try
         {
             ObjectId id = ObjectId.Parse(memberId);
-            FilterDefinition<Member>? filter = Builders<Member>.Filter.Eq(m => m.Id, id);
-            UpdateDefinition<Member>? update =
-                Builders<Member>.Update.Set(m => m.Roles, roles);
+            FilterDefinition<Membership>? filter = Builders<Membership>.Filter.Eq(m => m.Id, id);
+            UpdateDefinition<Membership>? update =
+                Builders<Membership>.Update.Set(m => m.Roles, roles);
 
             UpdateResult result = await _collection.UpdateOneAsync(filter, update)
                 .WaitAsync(_setRolesTimeout);
@@ -107,14 +107,14 @@ public class MemberRepository : IMemberRepository
         }
     }
 
-    public async Task<Result<string, Error<string>>> Create(PartialMember partialMember)
+    public async Task<Result<string, Error<string>>> Create(PartialMembership partialMembership)
     {
         try
         {
-            Member member = new(partialMember);
+            Membership membership = new(partialMembership);
 
-            await _collection.InsertOneAsync(member).WaitAsync(_createTimeout);
-            return Result<string, Error<string>>.Ok(member.Id.ToString());
+            await _collection.InsertOneAsync(membership).WaitAsync(_createTimeout);
+            return Result<string, Error<string>>.Ok(membership.Id.ToString());
         }
         catch (TimeoutException)
         {
@@ -130,90 +130,90 @@ public class MemberRepository : IMemberRepository
         }
     }
 
-    public async Task<Result<Models.Member, Error<string>>> FindById(string memberId)
+    public async Task<Result<Models.Membership, Error<string>>> FindById(string memberId)
     {
         try
         {
             ObjectId id = ObjectId.Parse(memberId);
-            IAsyncCursor<Member>? cursor =
+            IAsyncCursor<Membership>? cursor =
                 await _collection.FindAsync(p => p.Id.Equals(id))
                     .WaitAsync(_findByIdTimeout);
 
             if (cursor is null)
-                return Result<Models.Member, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
+                return Result<Models.Membership, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
                     "find async cursor is null"));
 
             bool hasNext = await cursor.MoveNextAsync().WaitAsync(_findByIdTimeout);
 
             if (!hasNext)
-                return Result<Models.Member, Error<string>>.Err(
+                return Result<Models.Membership, Error<string>>.Err(
                     new Error<string>(ErrorKind.NotFound, $"could not find member by id '{memberId}'"));
 
-            Member? idMember = cursor.Current.FirstOrDefault();
+            Membership? idMember = cursor.Current.FirstOrDefault();
 
             if (idMember is null)
-                return Result<Models.Member, Error<string>>.Err(
+                return Result<Models.Membership, Error<string>>.Err(
                     new Error<string>(ErrorKind.NotFound, $"could not find member by id '{memberId}'"));
 
-            Result<Models.Member, Error<string>> modelsMemberResult = await idMember.Transform(_roleRepository);
+            Result<Models.Membership, Error<string>> modelsMemberResult = await idMember.Transform(_roleRepository);
 
             if (!modelsMemberResult.IsOk)
-                return Result<Models.Member, Error<string>>.Err(modelsMemberResult.UnwrapErr());
+                return Result<Models.Membership, Error<string>>.Err(modelsMemberResult.UnwrapErr());
 
-            return Result<Models.Member, Error<string>>.Ok(modelsMemberResult.Unwrap());
+            return Result<Models.Membership, Error<string>>.Ok(modelsMemberResult.Unwrap());
         }
         catch (TimeoutException)
         {
             string message = "timed out finding member by id";
             _logger.LogInformation(message);
-            return Result<Models.Member, Error<string>>.Err(new Error<string>(ErrorKind.TimedOut,
+            return Result<Models.Membership, Error<string>>.Err(new Error<string>(ErrorKind.TimedOut,
                 message));
         }
         catch (Exception e)
         {
             string message = $"failed to find member by id: {e}";
             _logger.LogInformation(message);
-            return Result<Models.Member, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
+            return Result<Models.Membership, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
                 message));
         }
     }
 
-    public async Task<Result<Models.Member[], Error<string>>> FindByUserId(string userId)
+    public async Task<Result<Models.Membership[], Error<string>>> FindByUserId(string userId)
     {
         try
         {
-            IList<Member> members =
+            IList<Membership> members =
                 await _collection.Find(p => p.UserId.Equals(userId)).ToListAsync()
                     .WaitAsync(_findByUserIdTimeout);
 
-            Models.Member[] modelsMembers = new Models.Member[members.Count];
+            Models.Membership[] modelsMembers = new Models.Membership[members.Count];
             int i = 0;
 
-            foreach (Member member in members)
+            foreach (Membership member in members)
             {
-                Result<Models.Member, Error<string>> modelsMemberResult = await member.Transform(_roleRepository);
+                Result<Models.Membership, Error<string>> modelsMemberResult = await member.Transform(_roleRepository);
 
                 if (!modelsMemberResult.IsOk)
-                    return Result<Models.Member[], Error<string>>.Err(modelsMemberResult.UnwrapErr());
+                    return Result<Models.Membership[], Error<string>>.Err(modelsMemberResult.UnwrapErr());
 
                 modelsMembers[i] = modelsMemberResult.Unwrap();
                 i++;
             }
 
-            return Result<Models.Member[], Error<string>>.Ok(modelsMembers);
+            return Result<Models.Membership[], Error<string>>.Ok(modelsMembers);
         }
         catch (TimeoutException)
         {
             string message = "timed out finding members by user id";
             _logger.LogInformation(message);
-            return Result<Models.Member[], Error<string>>.Err(new Error<string>(ErrorKind.TimedOut,
+            return Result<Models.Membership[], Error<string>>.Err(new Error<string>(ErrorKind.TimedOut,
                 message));
         }
         catch (Exception e)
         {
             string message = $"failed to find members by user id: {e}";
             _logger.LogInformation(message);
-            return Result<Models.Member[], Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
+            return Result<Models.Membership[], Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
                 message));
         }
     }

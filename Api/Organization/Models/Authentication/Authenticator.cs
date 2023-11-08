@@ -7,15 +7,15 @@ namespace Cuplan.Organization.Models.Authentication;
 public class Authenticator
 {
     private readonly IAuthProvider _authProvider;
-    private readonly MemberManager _memberManager;
+    private readonly MembershipManager _membershipManager;
     private readonly OrganizationManager _orgManager;
     private readonly RoleManager _roleManager;
 
-    public Authenticator(OrganizationManager orgManager, MemberManager memberManager, RoleManager roleManager,
+    public Authenticator(OrganizationManager orgManager, MembershipManager membershipManager, RoleManager roleManager,
         IAuthProvider authProvider)
     {
         _orgManager = orgManager;
-        _memberManager = memberManager;
+        _membershipManager = membershipManager;
         _roleManager = roleManager;
         _authProvider = authProvider;
     }
@@ -51,9 +51,9 @@ public class Authenticator
 
         Role adminRole = adminRoleResult.Unwrap();
 
-        PartialMember partialMember = new(orgId, userId, Array.Empty<string>(), new[] { adminRole });
+        PartialMembership partialMembership = new(orgId, userId, Array.Empty<string>(), new[] { adminRole });
 
-        Result<string, Error<string>> createMemberResult = await _memberManager.Create(partialMember);
+        Result<string, Error<string>> createMemberResult = await _membershipManager.Create(partialMembership);
 
         if (!createMemberResult.IsOk)
             return Result<LoginSuccessPayload, Error<string>>.Err(createMemberResult.UnwrapErr());

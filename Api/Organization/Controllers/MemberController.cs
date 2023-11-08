@@ -10,20 +10,20 @@ namespace Cuplan.Organization.Controllers;
 [ApiController]
 public class MemberController : ControllerBase
 {
-    private readonly MemberManager _memberManager;
+    private readonly MembershipManager _membershipManager;
 
-    public MemberController(MemberManager memberManager)
+    public MemberController(MembershipManager membershipManager)
     {
-        _memberManager = memberManager;
+        _membershipManager = membershipManager;
     }
 
     [Route("api/[controller]")]
     [HttpPost]
     [Authorize]
     [DevOnly]
-    public async Task<IActionResult> Create([FromBody] PartialMember partialMember)
+    public async Task<IActionResult> Create([FromBody] PartialMembership partialMembership)
     {
-        Result<string, Error<string>> createMemberResult = await _memberManager.Create(partialMember);
+        Result<string, Error<string>> createMemberResult = await _membershipManager.Create(partialMembership);
 
         if (!createMemberResult.IsOk)
         {
@@ -43,7 +43,7 @@ public class MemberController : ControllerBase
     [DevOnly]
     public async Task<IActionResult> Read([FromRoute] string id)
     {
-        Result<Member, Error<string>> readResult = await _memberManager.Read(id);
+        Result<Membership, Error<string>> readResult = await _membershipManager.Read(id);
 
         if (!readResult.IsOk)
         {
@@ -61,9 +61,9 @@ public class MemberController : ControllerBase
     [HttpPatch]
     [Authorize]
     [DevOnly]
-    public async Task<IActionResult> Update([FromBody] Member idMember)
+    public async Task<IActionResult> Update([FromBody] Membership idMembership)
     {
-        Result<Empty, Error<string>> updateResult = await _memberManager.Update(idMember);
+        Result<Empty, Error<string>> updateResult = await _membershipManager.Update(idMembership);
 
         if (!updateResult.IsOk)
         {
@@ -82,7 +82,7 @@ public class MemberController : ControllerBase
     [Authorize]
     public async Task<IActionResult> ReadMembersByUserId([FromRoute] string userId)
     {
-        Result<Member[], Error<string>> result = await _memberManager.ReadMembersByUserId(userId);
+        Result<Membership[], Error<string>> result = await _membershipManager.ReadMembersByUserId(userId);
 
         if (!result.IsOk)
         {
@@ -93,6 +93,6 @@ public class MemberController : ControllerBase
 
         // WrappedResult required because Javascript JSON cannot handle deserializing directly empty arrays if they
         // are not contained within an object.
-        return Ok(JsonConvert.SerializeObject(new WrappedResult<Member[]>(result.Unwrap())));
+        return Ok(JsonConvert.SerializeObject(new WrappedResult<Membership[]>(result.Unwrap())));
     }
 }

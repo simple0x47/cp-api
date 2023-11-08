@@ -4,26 +4,26 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace Cuplan.Organization.ServiceModels;
 
-public class Member
+public class Membership
 {
-    public Member()
+    public Membership()
     {
     }
 
-    public Member(PartialMember partialMember)
+    public Membership(PartialMembership partialMembership)
     {
-        OrgId = partialMember.OrgId;
-        UserId = partialMember.UserId;
-        Permissions = partialMember.Permissions;
+        OrgId = partialMembership.OrgId;
+        UserId = partialMembership.UserId;
+        Permissions = partialMembership.Permissions;
 
         IList<string> roleIds = new List<string>();
 
-        foreach (Models.Role role in partialMember.Roles) roleIds.Add(role.Id);
+        foreach (Models.Role role in partialMembership.Roles) roleIds.Add(role.Id);
 
         Roles = roleIds;
     }
 
-    public Member(ObjectId id, string orgId, string userId, IEnumerable<string> permissions,
+    public Membership(ObjectId id, string orgId, string userId, IEnumerable<string> permissions,
         IEnumerable<string> roles)
     {
         Id = id;

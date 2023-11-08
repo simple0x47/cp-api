@@ -5,28 +5,28 @@ using Cuplan.Organization.Services;
 namespace Cuplan.Organization.Transformers;
 
 /// <summary>
-///     Transformer of <see cref="ServiceModels.Member" /> into <see cref="Member" />.
+///     Transformer of <see cref="ServiceModels.Membership" /> into <see cref="Membership" />.
 /// </summary>
 public static class MemberTransformer
 {
-    public static async Task<Result<Member, Error<string>>> Transform(this ServiceModels.Member member,
+    public static async Task<Result<Membership, Error<string>>> Transform(this ServiceModels.Membership membership,
         IRoleRepository roleRepository)
     {
-        Result<IEnumerable<Role>, Error<string>> rolesResult = await roleRepository.FindByIds(member.Roles);
+        Result<IEnumerable<Role>, Error<string>> rolesResult = await roleRepository.FindByIds(membership.Roles);
 
-        if (!rolesResult.IsOk) return Result<Member, Error<string>>.Err(rolesResult.UnwrapErr());
+        if (!rolesResult.IsOk) return Result<Membership, Error<string>>.Err(rolesResult.UnwrapErr());
 
         IEnumerable<Role> roles = rolesResult.Unwrap();
 
-        Member modelsMember = new()
+        Membership modelsMembership = new()
         {
-            Id = member.Id.ToString(),
-            OrgId = member.OrgId,
-            Permissions = member.Permissions,
+            Id = membership.Id.ToString(),
+            OrgId = membership.OrgId,
+            Permissions = membership.Permissions,
             Roles = roles,
-            UserId = member.UserId
+            UserId = membership.UserId
         };
 
-        return Result<Member, Error<string>>.Ok(modelsMember);
+        return Result<Membership, Error<string>>.Ok(modelsMembership);
     }
 }

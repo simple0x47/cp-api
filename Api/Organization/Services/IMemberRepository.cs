@@ -8,9 +8,9 @@ public interface IMemberRepository
     /// <summary>
     ///     Creates a membership between an user id and an organization id.
     /// </summary>
-    /// <param name="partialMember">The membership to be created.</param>
+    /// <param name="partialMembership">The membership to be created.</param>
     /// <returns>Id of the created member, null if the creation failed.</returns>
-    public Task<Result<string, Error<string>>> Create(PartialMember partialMember);
+    public Task<Result<string, Error<string>>> Create(PartialMembership partialMembership);
 
     /// <summary>
     ///     Sets the permissions to a membership.
@@ -32,13 +32,13 @@ public interface IMemberRepository
     ///     Finds a membership by its id.
     /// </summary>
     /// <param name="memberId">Id of the membership to be retrieved.</param>
-    /// <returns>A <see cref="Member" /> indicating that the operation was successful, or an error.</returns>
-    public Task<Result<Member, Error<string>>> FindById(string memberId);
+    /// <returns>A <see cref="Membership" /> indicating that the operation was successful, or an error.</returns>
+    public Task<Result<Membership, Error<string>>> FindById(string memberId);
 
     /// <summary>
     ///     Finds the memberships of an user by its id.
     /// </summary>
     /// <param name="userId"></param>
-    /// <returns>An array of <see cref="Member" /> or an error.</returns>
-    public Task<Result<Member[], Error<string>>> FindByUserId(string userId);
+    /// <returns>An array of <see cref="Membership" /> or an error.</returns>
+    public Task<Result<Membership[], Error<string>>> FindByUserId(string userId);
 }

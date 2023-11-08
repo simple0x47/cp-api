@@ -1,8 +1,8 @@
 namespace Cuplan.Organization.Models;
 
-public class PartialMember
+public class PartialMembership
 {
-    public PartialMember(string orgId, string userId, IEnumerable<string> permissions, IEnumerable<Role> roles)
+    public PartialMembership(string orgId, string userId, IEnumerable<string> permissions, IEnumerable<Role> roles)
     {
         OrgId = orgId;
         UserId = userId;

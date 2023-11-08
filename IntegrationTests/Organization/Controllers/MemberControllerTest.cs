@@ -23,9 +23,9 @@ public class MemberControllerTest : TestBase
     [Fact]
     public async Task CreateMember_WithNonExistingOrgId_Fails()
     {
-        PartialMember examplePartialMember =
+        PartialMembership examplePartialMembership =
             new("653bf78afc1ba1ad481195c4", "example@domain.com", Array.Empty<string>(), Array.Empty<Role>());
-        HttpResponseMessage response = await Client.PostAsync(MemberApi, JsonContent.Create(examplePartialMember));
+        HttpResponseMessage response = await Client.PostAsync(MemberApi, JsonContent.Create(examplePartialMembership));
 
 
         string failure = await response.Content.ReadAsStringAsync();
@@ -57,11 +57,11 @@ public class MemberControllerTest : TestBase
 
         IEnumerable<string> permissions = new[] { "permission1", "permission2" };
         IEnumerable<Role> roles = Array.Empty<Role>();
-        PartialMember partialMember = new(orgId, DefaultTestUserId, permissions, roles);
-        Member idMember = new(memberId, partialMember);
+        PartialMembership partialMembership = new(orgId, DefaultTestUserId, permissions, roles);
+        Membership idMembership = new(memberId, partialMembership);
 
 
-        HttpResponseMessage updateResponse = await Client.PatchAsync(MemberApi, JsonContent.Create(idMember));
+        HttpResponseMessage updateResponse = await Client.PatchAsync(MemberApi, JsonContent.Create(idMembership));
 
 
         Assert.Equal(HttpStatusCode.NoContent, updateResponse.StatusCode);
@@ -71,7 +71,7 @@ public class MemberControllerTest : TestBase
 
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
 
-        Member? getMember = await getResponse.Content.ReadFromJsonAsync<Member>();
+        Membership? getMember = await getResponse.Content.ReadFromJsonAsync<Membership>();
 
         Assert.NotNull(getMember);
         Assert.True(getMember.Permissions.SequenceEqual(permissions));
@@ -90,11 +90,11 @@ public class MemberControllerTest : TestBase
 
 
         HttpResponseMessage response = await Client.GetAsync($"{MemberApi}/user/{DefaultTestUserId}");
-        WrappedResult<Member[]>? memberships = await response.Content.ReadFromJsonAsync<WrappedResult<Member[]>>();
+        WrappedResult<Membership[]>? memberships = await response.Content.ReadFromJsonAsync<WrappedResult<Membership[]>>();
 
 
         Assert.NotNull(memberships);
-        foreach (Member member in memberships.Result)
+        foreach (Membership member in memberships.Result)
             if (member.OrgId != firstOrgId && member.OrgId != secondOrgId)
                 Assert.Fail($"User id '{member.UserId}' is member of an unexpected organization '{member.OrgId}'");
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -105,7 +105,7 @@ public class MemberControllerTest : TestBase
     public async Task GetAllMembersForUserId_ValidUserIdWithNoMemberships_EmptyArray()
     {
         HttpResponseMessage response = await Client.GetAsync($"{MemberApi}/user/{DefaultTestUserId}");
-        WrappedResult<Member[]>? memberships = await response.Content.ReadFromJsonAsync<WrappedResult<Member[]>>();
+        WrappedResult<Membership[]>? memberships = await response.Content.ReadFromJsonAsync<WrappedResult<Membership[]>>();
 
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -129,9 +129,9 @@ public class MemberControllerTest : TestBase
 
     private async Task<string> CreateMember(string orgId)
     {
-        PartialMember examplePartialMember =
+        PartialMembership examplePartialMembership =
             new(orgId, DefaultTestUserId, Array.Empty<string>(), Array.Empty<Role>());
-        HttpResponseMessage response = await Client.PostAsync(MemberApi, JsonContent.Create(examplePartialMember));
+        HttpResponseMessage response = await Client.PostAsync(MemberApi, JsonContent.Create(examplePartialMembership));
 
 
         string memberId = await response.Content.ReadAsStringAsync();

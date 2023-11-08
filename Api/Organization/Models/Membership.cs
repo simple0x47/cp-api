@@ -1,12 +1,12 @@
 namespace Cuplan.Organization.Models;
 
-public class Member
+public class Membership
 {
-    public Member()
+    public Membership()
     {
     }
 
-    public Member(string id, string orgId, string userId, IEnumerable<string> permissions,
+    public Membership(string id, string orgId, string userId, IEnumerable<string> permissions,
         IEnumerable<Role> roles)
     {
         Id = id;
@@ -18,14 +18,14 @@ public class Member
     }
 
 
-    public Member(string id, PartialMember partialMember)
+    public Membership(string id, PartialMembership partialMembership)
     {
         Id = id;
-        OrgId = partialMember.OrgId;
+        OrgId = partialMembership.OrgId;
         OrgName = null;
-        UserId = partialMember.UserId;
-        Permissions = partialMember.Permissions;
-        Roles = partialMember.Roles;
+        UserId = partialMembership.UserId;
+        Permissions = partialMembership.Permissions;
+        Roles = partialMembership.Roles;
     }
 
     public string Id { get; set; }

@@ -1,6 +1,6 @@
 namespace Cuplan.Organization.ServiceModels.Auth0;
 
-public struct RegisterAuth0ErrorResponse
+public struct RegisterErrorResponse
 {
     public string code { get; set; }
     public string description { get; set; }

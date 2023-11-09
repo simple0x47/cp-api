@@ -138,7 +138,7 @@ public class Auth0Provider : IAuthProvider
 
         if (response.StatusCode != HttpStatusCode.OK)
         {
-            LoginAuth0ErrorResponse error = await response.Content.ReadFromJsonAsync<LoginAuth0ErrorResponse>();
+            LoginErrorResponse error = await response.Content.ReadFromJsonAsync<LoginErrorResponse>();
             return Result<LoginSuccessPayload, Error<string>>.Err(new Error<string>(error.error,
                 error.error_description));
         }
@@ -149,8 +149,8 @@ public class Auth0Provider : IAuthProvider
 
     private async Task<Result<string, Error<string>>> HandleRegisterAuth0ErrorResponse(HttpResponseMessage response)
     {
-        RegisterAuth0ErrorResponse errorResponse =
-            await response.Content.ReadFromJsonAsync<RegisterAuth0ErrorResponse>();
+        RegisterErrorResponse errorResponse =
+            await response.Content.ReadFromJsonAsync<RegisterErrorResponse>();
 
         if (errorResponse.code is null)
             return Result<string, Error<string>>.Err(new Error<string>(ErrorKind.ErrorResponseNull,
@@ -162,7 +162,7 @@ public class Auth0Provider : IAuthProvider
     private async Task<Result<LoginSuccessPayload, Error<string>>> HandleLoginAuth0ErrorResponse(
         HttpResponseMessage response)
     {
-        LoginAuth0ErrorResponse errorResponse = await response.Content.ReadFromJsonAsync<LoginAuth0ErrorResponse>();
+        LoginErrorResponse errorResponse = await response.Content.ReadFromJsonAsync<LoginErrorResponse>();
 
         if (errorResponse.error is null)
             return Result<LoginSuccessPayload, Error<string>>.Err(new Error<string>(ErrorKind.ErrorResponseNull,

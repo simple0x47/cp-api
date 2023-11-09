@@ -25,4 +25,11 @@ public interface IAuthProvider
     /// <param name="forgotPassword"></param>
     /// <returns><see cref="Empty" /> or an error.</returns>
     public Task<Result<Empty, Error<string>>> ForgotPassword(ForgotPasswordPayload forgotPassword);
+
+    /// <summary>
+    ///     Uses a refresh token to obtain a new, valid, access token after the expiration of the previous one.
+    /// </summary>
+    /// <param name="refreshToken"></param>
+    /// <returns>The new set of tokens packed within a <see cref="LoginSuccessPayload" /> or an error.</returns>
+    public Task<Result<LoginSuccessPayload, Error<string>>> RefreshToken(string refreshToken);
 }

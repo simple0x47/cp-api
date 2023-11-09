@@ -28,7 +28,7 @@ public class AuthenticationControllerTest : TestBase
         HttpResponseMessage response = await RegisterCreatingOrg($"{Guid.NewGuid().ToString()}@simpleg.eu");
 
 
-        AssertSuccessfulLogin(response);
+        await AssertSuccessfulLogin(response);
     }
 
     [Fact]
@@ -62,7 +62,7 @@ public class AuthenticationControllerTest : TestBase
             await Client.PostAsync($"{AuthenticationApi}/login", JsonContent.Create(payload));
 
 
-        AssertSuccessfulLogin(response);
+        await AssertSuccessfulLogin(response);
     }
 
     [Fact]
@@ -95,6 +95,32 @@ public class AuthenticationControllerTest : TestBase
 
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task RefreshToken_PreviouslyLoggedIn_Succeeds()
+    {
+        string? email = SecretsManager.Get(Environment.GetEnvironmentVariable(TestLoginEmailSecretVar));
+        string? password = SecretsManager.Get(Environment.GetEnvironmentVariable(TestLoginPasswordSecretVar));
+
+        Assert.NotNull(email);
+        Assert.NotNull(password);
+
+        LoginPayload payload = new();
+        payload.Email = email;
+        payload.Password = password;
+
+        HttpResponseMessage loginResponse =
+            await Client.PostAsync($"{AuthenticationApi}/login", JsonContent.Create(payload));
+        LoginSuccessPayload successPayload = await loginResponse.Content.ReadFromJsonAsync<LoginSuccessPayload>();
+
+
+        HttpResponseMessage response = await Client.PostAsync($"{AuthenticationApi}/refresh-token",
+            JsonContent.Create(successPayload.RefreshToken));
+
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        await AssertSuccessfulLogin(response);
     }
 
     private async Task<HttpResponseMessage> RegisterCreatingOrg(string email)

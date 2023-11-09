@@ -92,4 +92,15 @@ public class Authenticator
 
         return result;
     }
+
+    public async Task<Result<LoginSuccessPayload, Error<string>>> RefreshToken(string refreshToken)
+    {
+        if (refreshToken.Length == 0)
+            return Result<LoginSuccessPayload, Error<string>>.Err(new Error<string>(ErrorKind.InvalidCredentials,
+                "'refreshToken' is empty."));
+
+        Result<LoginSuccessPayload, Error<string>> result = await _authProvider.RefreshToken(refreshToken);
+
+        return result;
+    }
 }

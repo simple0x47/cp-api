@@ -11,9 +11,11 @@ namespace Cuplan.Organization.Services;
 public class Auth0Provider : IAuthProvider
 {
     private const string ResourceOwnerGrant = "password";
+    private const string RefreshTokenGrant = "refresh_token";
     private const string RequiredScopes = "openid offline_access";
     private const string SignUpEndpoint = "dbconnections/signup";
     private const string LoginEndpoint = "oauth/token";
+    private const string RefreshTokenEndpoint = "oauth/token";
     private const string ChangePasswordEndpoint = "dbconnections/change_password";
     private const string IdPrefix = "auth0|";
 
@@ -119,6 +121,30 @@ public class Auth0Provider : IAuthProvider
                 "Auth0 replied with a non-ok response"));
 
         return Result<Empty, Error<string>>.Ok(new Empty());
+    }
+
+    public async Task<Result<LoginSuccessPayload, Error<string>>> RefreshToken(string refreshToken)
+    {
+        RefreshTokenPayload payload = new()
+        {
+            grant_type = RefreshTokenGrant,
+            client_id = _clientId,
+            client_secret = _clientSecret,
+            refresh_token = refreshToken
+        };
+
+        HttpResponseMessage response = await _client.PostAsync($"{_identityProviderUrl}{RefreshTokenEndpoint}",
+            JsonContent.Create(payload));
+
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            LoginAuth0ErrorResponse error = await response.Content.ReadFromJsonAsync<LoginAuth0ErrorResponse>();
+            return Result<LoginSuccessPayload, Error<string>>.Err(new Error<string>(error.error,
+                error.error_description));
+        }
+
+        LoginOkResponse successPayload = await response.Content.ReadFromJsonAsync<LoginOkResponse>();
+        return Result<LoginSuccessPayload, Error<string>>.Ok(successPayload);
     }
 
     private async Task<Result<string, Error<string>>> HandleRegisterAuth0ErrorResponse(HttpResponseMessage response)

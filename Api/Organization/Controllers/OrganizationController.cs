@@ -21,18 +21,18 @@ public class OrganizationController
     [Route("api/[controller]")]
     [HttpPost]
     [Authorize]
-    [DevOnly]
     public async Task<IActionResult> Post([FromBody] PartialOrganization org)
     {
         Result<string, Error<string>> result = await _orgManager.Create(org);
 
-        return result.Match<IActionResult>(
-            orgId => { return Ok(orgId); },
-            error =>
-            {
-                _logger.LogWarning($"failed to create organization: {error.Message}");
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
-        );
+        if (!result.IsOk)
+        {
+            Error<string> error = result.UnwrapErr();
+
+            _logger.LogWarning($"failed to create organization: {error.Message}");
+            return StatusCode(StatusCodes.Status500InternalServerError, error.Message);
+        }
+
+        return Ok(result.Unwrap());
     }
 }

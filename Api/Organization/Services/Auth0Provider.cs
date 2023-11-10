@@ -4,6 +4,7 @@ using Core.Secrets;
 using Cuplan.Organization.Models.Authentication;
 using Cuplan.Organization.ServiceModels.Auth0;
 using LoginPayload = Cuplan.Organization.Models.Authentication.LoginPayload;
+using RefreshTokenPayload = Cuplan.Organization.ServiceModels.Auth0.RefreshTokenPayload;
 using SignUpPayload = Cuplan.Organization.Models.Authentication.SignUpPayload;
 
 namespace Cuplan.Organization.Services;

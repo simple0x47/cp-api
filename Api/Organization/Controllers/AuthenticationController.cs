@@ -70,12 +70,12 @@ public class AuthenticationController : ControllerBase
     [Route("api/[controller]/refresh-token")]
     [EnableCors("Frontend")]
     [HttpPost]
-    public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenPayload payload)
     {
-        Result<LoginSuccessPayload, Error<string>> result = await _authenticator.RefreshToken(refreshToken);
+        Result<LoginSuccessPayload, Error<string>> result = await _authenticator.RefreshToken(payload.RefreshToken);
 
         if (!result.IsOk) return StatusCode(StatusCodes.Status500InternalServerError, result.UnwrapErr().ErrorKind);
 
-        return Ok(result.Unwrap());
+        return Ok(JsonConvert.SerializeObject(result.Unwrap()));
     }
 }

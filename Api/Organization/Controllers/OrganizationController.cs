@@ -1,7 +1,9 @@
 using Core;
 using Cuplan.Organization.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Cuplan.Organization.Controllers;
 
@@ -20,6 +22,7 @@ public class OrganizationController
 
     [Route("api/[controller]")]
     [HttpPost]
+    [EnableCors("Frontend")]
     [Authorize]
     public async Task<IActionResult> Post([FromBody] PartialOrganization org)
     {
@@ -33,6 +36,6 @@ public class OrganizationController
             return StatusCode(StatusCodes.Status500InternalServerError, error.Message);
         }
 
-        return Ok(result.Unwrap());
+        return Ok(JsonConvert.SerializeObject(result.Unwrap()));
     }
 }

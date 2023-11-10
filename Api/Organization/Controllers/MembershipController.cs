@@ -2,6 +2,7 @@ using Core;
 using Cuplan.Organization.ControllerModels;
 using Cuplan.Organization.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -79,6 +80,7 @@ public class MembershipController : ControllerBase
 
     [Route("api/[controller]/user/{userId}")]
     [HttpGet]
+    [EnableCors("Frontend")]
     [Authorize]
     public async Task<IActionResult> ReadMembersByUserId([FromRoute] string userId)
     {

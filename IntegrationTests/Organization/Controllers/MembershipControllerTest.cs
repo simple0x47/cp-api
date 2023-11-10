@@ -126,7 +126,7 @@ public class MembershipControllerTest : TestBase
         Assert.Equal(HttpStatusCode.OK, orgResponse.StatusCode);
 
 
-        return await orgResponse.Content.ReadAsStringAsync();
+        return await orgResponse.Content.ReadFromJsonAsync<string>();
     }
 
     private async Task<string> CreateMember(string orgId)

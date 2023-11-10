@@ -116,7 +116,7 @@ public class AuthenticationControllerTest : TestBase
 
 
         HttpResponseMessage response = await Client.PostAsync($"{AuthenticationApi}/refresh-token",
-            JsonContent.Create(successPayload.RefreshToken));
+            JsonContent.Create(new RefreshTokenPayload { RefreshToken = successPayload.RefreshToken }));
 
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

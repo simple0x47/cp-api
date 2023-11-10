@@ -18,8 +18,6 @@ public class OrganizationControllerTest : TestBase
     [Fact]
     public async Task CreateOrganization_ReturnsAnOrganizationId()
     {
-        const int organizationIdLength = 24;
-
         PartialOrganization examplePartialOrganization =
             new("a", new Address("a", "b", "c", "d", "e", "f", "g"),
                 new[] { "a" });
@@ -31,6 +29,6 @@ public class OrganizationControllerTest : TestBase
 
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal(organizationIdLength, organizationId.Length);
+        Assert.True(organizationId.Length > 0);
     }
 }

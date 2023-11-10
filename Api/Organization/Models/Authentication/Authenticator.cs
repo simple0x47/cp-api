@@ -37,23 +37,13 @@ public class Authenticator
 
         string userId = signUpResult.Unwrap();
 
-        Result<string, Error<string>> createOrgResult = await _orgManager.Create(payload.Org);
+        UserCreateOrgPayload createOrgPayload = new()
+        {
+            Org = payload.Org,
+            UserId = userId
+        };
 
-        if (!createOrgResult.IsOk)
-            return Result<LoginSuccessPayload, Error<string>>.Err(createOrgResult.UnwrapErr());
-
-        string orgId = createOrgResult.Unwrap();
-
-        Result<Role, Error<string>> adminRoleResult = await _roleManager.GetAdminRole();
-
-        if (!adminRoleResult.IsOk)
-            return Result<LoginSuccessPayload, Error<string>>.Err(adminRoleResult.UnwrapErr());
-
-        Role adminRole = adminRoleResult.Unwrap();
-
-        PartialMembership partialMembership = new(orgId, userId, Array.Empty<string>(), new[] { adminRole });
-
-        Result<string, Error<string>> createMemberResult = await _membershipManager.Create(partialMembership);
+        Result<string, Error<string>> createMemberResult = await _membershipManager.UserCreateOrg(createOrgPayload);
 
         if (!createMemberResult.IsOk)
             return Result<LoginSuccessPayload, Error<string>>.Err(createMemberResult.UnwrapErr());

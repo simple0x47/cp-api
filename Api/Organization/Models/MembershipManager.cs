@@ -6,12 +6,17 @@ namespace Cuplan.Organization.Models;
 public class MembershipManager
 {
     private readonly IMemberRepository _memberRepository;
+    private readonly OrganizationManager _orgManager;
     private readonly IOrganizationRepository _orgRepository;
+    private readonly RoleManager _roleManager;
 
-    public MembershipManager(IMemberRepository memberRepository, IOrganizationRepository orgRepository)
+    public MembershipManager(IMemberRepository memberRepository, IOrganizationRepository orgRepository,
+        OrganizationManager orgManager, RoleManager roleManager)
     {
         _memberRepository = memberRepository;
         _orgRepository = orgRepository;
+        _orgManager = orgManager;
+        _roleManager = roleManager;
     }
 
     /// <summary>
@@ -96,5 +101,30 @@ public class MembershipManager
         }
 
         return result;
+    }
+
+    public async Task<Result<string, Error<string>>> UserCreateOrg(UserCreateOrgPayload payload)
+    {
+        Result<string, Error<string>> createOrgResult = await _orgManager.Create(payload.Org);
+
+        if (!createOrgResult.IsOk)
+            return Result<string, Error<string>>.Err(createOrgResult.UnwrapErr());
+
+        string orgId = createOrgResult.Unwrap();
+
+        Result<Role, Error<string>> adminRoleResult = await _roleManager.GetAdminRole();
+
+        if (!adminRoleResult.IsOk)
+            return Result<string, Error<string>>.Err(adminRoleResult.UnwrapErr());
+
+        Role adminRole = adminRoleResult.Unwrap();
+
+        PartialMembership partialMembership = new(orgId, payload.UserId, Array.Empty<string>(), new[] { adminRole });
+
+        Result<string, Error<string>> createMemberResult = await Create(partialMembership);
+
+        if (!createMemberResult.IsOk) return Result<string, Error<string>>.Err(createMemberResult.UnwrapErr());
+
+        return Result<string, Error<string>>.Ok(createMemberResult.Unwrap());
     }
 }

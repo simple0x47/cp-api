@@ -115,6 +115,29 @@ public class MembershipControllerTest : TestBase
         Assert.Empty(memberships.Result);
     }
 
+    [Fact]
+    public async Task UserCreateOrg_ValidData_Succeeds()
+    {
+        PartialOrganization exampleOrg =
+            new("a", new Address("a", "b", "c", "d", "e", "f", "g"),
+                new[] { "a" });
+
+        UserCreateOrgPayload payload = new()
+        {
+            UserId = DefaultTestUserId,
+            Org = exampleOrg
+        };
+
+
+        HttpResponseMessage response =
+            await Client.PostAsync($"{MemberApi}/user-create-org", JsonContent.Create(payload));
+        string membershipId = await response.Content.ReadFromJsonAsync<string>();
+
+
+        Assert.NotNull(membershipId);
+        Assert.True(membershipId.Length > 0);
+    }
+
     private async Task<string> CreateOrganization()
     {
         PartialOrganization exampleOrg =

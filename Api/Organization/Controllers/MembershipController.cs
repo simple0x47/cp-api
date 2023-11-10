@@ -97,4 +97,22 @@ public class MembershipController : ControllerBase
         // are not contained within an object.
         return Ok(JsonConvert.SerializeObject(new WrappedResult<Membership[]>(result.Unwrap())));
     }
+
+    [Route("api/[controller]/user-create-org")]
+    [HttpPost]
+    [EnableCors("Frontend")]
+    [Authorize]
+    public async Task<IActionResult> UserCreateOrg([FromBody] UserCreateOrgPayload payload)
+    {
+        Result<string, Error<string>> result = await _membershipManager.UserCreateOrg(payload);
+
+        if (!result.IsOk)
+        {
+            Error<string> error = result.UnwrapErr();
+
+            return StatusCode(StatusCodes.Status500InternalServerError, error.Message);
+        }
+
+        return Ok(JsonConvert.SerializeObject(result.Unwrap()));
+    }
 }

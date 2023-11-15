@@ -146,12 +146,12 @@ public class AuthenticationControllerTest : TestBase
 
     private async Task AssertSuccessfulLogin(HttpResponseMessage response)
     {
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        
         string content = await response.Content.ReadAsStringAsync();
         Output.WriteLine($"content: {content}");
         LoginSuccessPayload? loginSuccessPayload = JsonConvert.DeserializeObject<LoginSuccessPayload>(content);
-
-
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        
         Assert.NotNull(loginSuccessPayload);
         Assert.True(loginSuccessPayload.Value.AccessToken.Length > 0);
         Assert.True(loginSuccessPayload.Value.IdToken.Length > 0);

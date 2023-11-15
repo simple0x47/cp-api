@@ -5,9 +5,9 @@ on:
   pull_request:
 
 env:
-  DOTNET_DOWNLOAD_URL: "https://dotnetcli.azureedge.net/dotnet/Sdk/8.0.100-rc.2.23502.2/dotnet-sdk-8.0.100-rc.2.23502.2-linux-x64.tar.gz"
-  DOTNET_SDK_VERSION: "8.0.100-rc.2.23502.2"
-  DOTNET_FILE: "dotnet-sdk-8.0.100-rc.2.23502.2-linux-x64.tar.gz"
+  DOTNET_DOWNLOAD_URL: "https://dotnetcli.azureedge.net/dotnet/Sdk/8.0.100/dotnet-sdk-8.0.100-linux-x64.tar.gz"
+  DOTNET_SDK_VERSION: "8.0.100"
+  DOTNET_FILE: "dotnet-sdk-8.0.100-linux-x64.tar.gz"
   ARTIFACT_NAME: "le_baguette"
   SECRETS_MANAGER_ACCESS_TOKEN: ${{ secrets.SECRETS_MANAGER_ACCESS_TOKEN }}
   ASPNETCORE_ENVIRONMENT: "Actions"

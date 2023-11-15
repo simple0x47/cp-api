@@ -53,8 +53,8 @@ jobs:
       - name: Prepare containers
         run: |
           cd compose
-          chmod +x deps.sh
-          ./deps.sh
+          chmod +x dev.sh
+          ./dev.sh
           cd ../
       - name: Download & install .NET SDK
         run: |

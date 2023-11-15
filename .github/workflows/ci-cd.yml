@@ -33,6 +33,7 @@ jobs:
               - 'Api/**'
               - 'Dockerfile'
               - 'Cuplan.sln'
+              - 'cd.sh'
             test:
               - 'IntegrationTests/**'
               - '.github/workflows/ci-cd.yml'

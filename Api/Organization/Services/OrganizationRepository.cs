@@ -45,7 +45,7 @@ public class OrganizationRepository : IOrganizationRepository
         {
             string message = $"failed to insert organization: {e}";
             _logger.LogInformation(message);
-            return Result<string, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
+            return Result<string, Error<string>>.Err(new Error<string>(ErrorKind.ServiceError,
                 message));
         }
     }
@@ -60,7 +60,7 @@ public class OrganizationRepository : IOrganizationRepository
                     .WaitAsync(_findByIdTimeoutAfterSeconds);
 
             if (cursor is null)
-                return Result<Models.Organization, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
+                return Result<Models.Organization, Error<string>>.Err(new Error<string>(ErrorKind.ServiceError,
                     "find async cursor is null"));
 
             bool hasNext = await cursor.MoveNextAsync().WaitAsync(_findByIdTimeoutAfterSeconds);
@@ -88,7 +88,7 @@ public class OrganizationRepository : IOrganizationRepository
         {
             string message = $"failed to find organization by id: {e}";
             _logger.LogInformation(message);
-            return Result<Models.Organization, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
+            return Result<Models.Organization, Error<string>>.Err(new Error<string>(ErrorKind.ServiceError,
                 message));
         }
     }

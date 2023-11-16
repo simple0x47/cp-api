@@ -33,7 +33,7 @@ public class RoleRepository : IRoleRepository
                 .WaitAsync(_getAdminRoleIdTimeout);
 
             if (cursor is null)
-                return Result<Models.Role, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
+                return Result<Models.Role, Error<string>>.Err(new Error<string>(ErrorKind.ServiceError,
                     "find async cursor is null"));
 
             bool hasNext = await cursor.MoveNextAsync().WaitAsync(_getAdminRoleIdTimeout);
@@ -60,7 +60,7 @@ public class RoleRepository : IRoleRepository
         {
             string message = $"failed to get the admin role: {e}";
             _logger.LogInformation(message);
-            return Result<Models.Role, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
+            return Result<Models.Role, Error<string>>.Err(new Error<string>(ErrorKind.ServiceError,
                 message));
         }
     }
@@ -74,7 +74,7 @@ public class RoleRepository : IRoleRepository
 
             if (roles is null)
                 return Result<IEnumerable<Models.Role>, Error<string>>.Err(new Error<string>(
-                    ErrorKind.StorageError,
+                    ErrorKind.ServiceError,
                     "'roles' is null"));
 
             IList<Models.Role> modelsRole = new List<Models.Role>();
@@ -94,7 +94,7 @@ public class RoleRepository : IRoleRepository
         {
             string message = $"failed to find roles by ids: {e}";
             _logger.LogInformation(message);
-            return Result<IEnumerable<Models.Role>, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
+            return Result<IEnumerable<Models.Role>, Error<string>>.Err(new Error<string>(ErrorKind.ServiceError,
                 message));
         }
     }

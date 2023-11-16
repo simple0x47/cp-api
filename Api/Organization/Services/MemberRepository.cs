@@ -75,7 +75,7 @@ public class MemberRepository : IMemberRepository
         {
             string message = $"failed to set permissions: {e}";
             _logger.LogInformation(message);
-            return Result<Empty, Error<string>>.Err(new Error<string>(ErrorKind.StorageError, message));
+            return Result<Empty, Error<string>>.Err(new Error<string>(ErrorKind.ServiceError, message));
         }
     }
 
@@ -103,7 +103,7 @@ public class MemberRepository : IMemberRepository
         {
             string message = $"failed to set roles: {e}";
             _logger.LogInformation(message);
-            return Result<Empty, Error<string>>.Err(new Error<string>(ErrorKind.StorageError, message));
+            return Result<Empty, Error<string>>.Err(new Error<string>(ErrorKind.ServiceError, message));
         }
     }
 
@@ -126,7 +126,7 @@ public class MemberRepository : IMemberRepository
         {
             string message = $"failed to create member: {e}";
             _logger.LogInformation(message);
-            return Result<string, Error<string>>.Err(new Error<string>(ErrorKind.StorageError, message));
+            return Result<string, Error<string>>.Err(new Error<string>(ErrorKind.ServiceError, message));
         }
     }
 
@@ -140,7 +140,7 @@ public class MemberRepository : IMemberRepository
                     .WaitAsync(_findByIdTimeout);
 
             if (cursor is null)
-                return Result<Models.Membership, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
+                return Result<Models.Membership, Error<string>>.Err(new Error<string>(ErrorKind.ServiceError,
                     "find async cursor is null"));
 
             bool hasNext = await cursor.MoveNextAsync().WaitAsync(_findByIdTimeout);
@@ -173,7 +173,7 @@ public class MemberRepository : IMemberRepository
         {
             string message = $"failed to find member by id: {e}";
             _logger.LogInformation(message);
-            return Result<Models.Membership, Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
+            return Result<Models.Membership, Error<string>>.Err(new Error<string>(ErrorKind.ServiceError,
                 message));
         }
     }
@@ -213,7 +213,7 @@ public class MemberRepository : IMemberRepository
         {
             string message = $"failed to find members by user id: {e}";
             _logger.LogInformation(message);
-            return Result<Models.Membership[], Error<string>>.Err(new Error<string>(ErrorKind.StorageError,
+            return Result<Models.Membership[], Error<string>>.Err(new Error<string>(ErrorKind.ServiceError,
                 message));
         }
     }

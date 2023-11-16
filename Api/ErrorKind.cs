@@ -7,6 +7,6 @@ public static class ErrorKind
     public const string ErrorResponseNull = "error_response_null";
     public const string NotFound = "not_found";
     public const string TimedOut = "timed_out";
-    public const string StorageError = "storage_error";
+    public const string ServiceError = "service_error";
     public const string UnknownError = "unknown_error";
 }

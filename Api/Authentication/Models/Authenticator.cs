@@ -1,8 +1,9 @@
 using Core;
+using Cuplan.Organization.Models;
 using Cuplan.Organization.Services;
 using Cuplan.Organization.Utils;
 
-namespace Cuplan.Organization.Models.Authentication;
+namespace Cuplan.Authentication.Models;
 
 public class Authenticator
 {
@@ -20,38 +21,25 @@ public class Authenticator
         _authProvider = authProvider;
     }
 
-    public async Task<Result<LoginSuccessPayload, Error<string>>> RegisterCreatingOrg(
-        RegisterCreatingOrgPayload payload)
+    public async Task<Result<LoginSuccessPayload, Error<string>>> Register(
+        SignUpPayload payload)
     {
-        if (!Validation.IsEmailValid(payload.User.Email))
+        if (!Validation.IsEmailValid(payload.Email))
             return Result<LoginSuccessPayload, Error<string>>.Err(new Error<string>(ErrorKind.InvalidCredentials,
                 "'email' is invalid."));
 
-        if (!Validation.IsPasswordValid(payload.User.Password))
+        if (!Validation.IsPasswordValid(payload.Password))
             return Result<LoginSuccessPayload, Error<string>>.Err(new Error<string>(ErrorKind.InvalidCredentials,
                 "'password' is invalid."));
 
-        Result<string, Error<string>> signUpResult = await _authProvider.SignUp(payload.User);
+        Result<string, Error<string>> signUpResult = await _authProvider.SignUp(payload);
 
         if (!signUpResult.IsOk) return Result<LoginSuccessPayload, Error<string>>.Err(signUpResult.UnwrapErr());
-
-        string userId = signUpResult.Unwrap();
-
-        UserCreateOrgPayload createOrgPayload = new()
-        {
-            Org = payload.Org,
-            UserId = userId
-        };
-
-        Result<string, Error<string>> createMemberResult = await _membershipManager.UserCreateOrg(createOrgPayload);
-
-        if (!createMemberResult.IsOk)
-            return Result<LoginSuccessPayload, Error<string>>.Err(createMemberResult.UnwrapErr());
-
+        
         LoginPayload loginPayload = new()
         {
-            Email = payload.User.Email,
-            Password = payload.User.Password
+            Email = payload.Email,
+            Password = payload.Password
         };
 
         return await Login(loginPayload);

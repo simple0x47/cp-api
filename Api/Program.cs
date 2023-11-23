@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Core.Secrets;
+using Cuplan.Authentication.Models;
 using Cuplan.Organization.Models;
-using Cuplan.Organization.Models.Authentication;
 using Cuplan.Organization.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;

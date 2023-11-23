@@ -1,4 +1,4 @@
-namespace Cuplan.Organization.Models.Authentication;
+namespace Cuplan.Authentication.Models;
 
 public struct ForgotPasswordPayload
 {

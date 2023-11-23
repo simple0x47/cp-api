@@ -1,12 +1,12 @@
 using System.Net;
 using Core;
 using Core.Secrets;
-using Cuplan.Organization.Models.Authentication;
+using Cuplan.Authentication.Models;
 using Cuplan.Organization.ServiceModels.Auth0;
 using Organization.Config;
-using LoginPayload = Cuplan.Organization.Models.Authentication.LoginPayload;
+using LoginPayload = Cuplan.Authentication.Models.LoginPayload;
 using RefreshTokenPayload = Cuplan.Organization.ServiceModels.Auth0.RefreshTokenPayload;
-using SignUpPayload = Cuplan.Organization.Models.Authentication.SignUpPayload;
+using SignUpPayload = Cuplan.Authentication.Models.SignUpPayload;
 
 namespace Cuplan.Organization.Services;
 

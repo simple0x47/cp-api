@@ -1,5 +1,5 @@
 using Core;
-using Cuplan.Organization.Models.Authentication;
+using Cuplan.Authentication.Models;
 
 namespace Cuplan.Organization.Services;
 

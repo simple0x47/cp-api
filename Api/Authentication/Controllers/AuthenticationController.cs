@@ -1,10 +1,10 @@
 using Core;
-using Cuplan.Organization.Models.Authentication;
+using Cuplan.Authentication.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
-namespace Cuplan.Organization.Controllers;
+namespace Cuplan.Authentication.Controllers;
 
 [ApiController]
 public class AuthenticationController : ControllerBase
@@ -16,12 +16,12 @@ public class AuthenticationController : ControllerBase
         _authenticator = authenticator;
     }
 
-    [Route("api/[controller]/register-creating-org")]
+    [Route("api/[controller]/register")]
     [EnableCors("Frontend")]
     [HttpPost]
-    public async Task<IActionResult> RegisterCreatingOrg([FromBody] RegisterCreatingOrgPayload payload)
+    public async Task<IActionResult> Register([FromBody] SignUpPayload payload)
     {
-        Result<LoginSuccessPayload, Error<string>> result = await _authenticator.RegisterCreatingOrg(payload);
+        Result<LoginSuccessPayload, Error<string>> result = await _authenticator.Register(payload);
 
         if (!result.IsOk)
         {

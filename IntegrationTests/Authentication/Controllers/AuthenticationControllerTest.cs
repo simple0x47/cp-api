@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
+using Cuplan.Authentication.Models;
 using Cuplan.Organization.Models;
-using Cuplan.Organization.Models.Authentication;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 using Xunit;
@@ -23,19 +23,19 @@ public class AuthenticationControllerTest : TestBase
     }
 
     [Fact]
-    public async Task RegisterCreatingOrg_ValidData_ReturnsOrgId()
+    public async Task Register_ValidData_ReturnsOrgId()
     {
-        HttpResponseMessage response = await RegisterCreatingOrg($"{Guid.NewGuid().ToString()}@simpleg.eu");
+        HttpResponseMessage response = await Register($"{Guid.NewGuid().ToString()}@simpleg.eu");
 
 
         await AssertSuccessfulLogin(response);
     }
 
     [Fact]
-    public async Task RegisterCreatingOrg_AlreadyRegisteredEmail_Fails()
+    public async Task Register_AlreadyRegisteredEmail_Fails()
     {
         HttpResponseMessage response =
-            await RegisterCreatingOrg(SecretsManager.Get(Environment.GetEnvironmentVariable(TestLoginEmailSecretVar)));
+            await Register(SecretsManager.Get(Environment.GetEnvironmentVariable(TestLoginEmailSecretVar)));
 
         string content = await response.Content.ReadAsStringAsync();
 
@@ -123,23 +123,15 @@ public class AuthenticationControllerTest : TestBase
         await AssertSuccessfulLogin(response);
     }
 
-    private async Task<HttpResponseMessage> RegisterCreatingOrg(string email)
+    private async Task<HttpResponseMessage> Register(string email)
     {
         SignUpPayload signUp = new();
         signUp.FullName = "Integration Test";
         signUp.Email = email;
         signUp.Password = Guid.NewGuid().ToString();
-
-        RegisterCreatingOrgPayload payload = new()
-        {
-            User = signUp,
-            Org = new PartialOrganization("example",
-                new Address("ES", "Albacete", "Villarrobledo", "Calle", "85", "", "02600"), Array.Empty<string>())
-        };
-
-
+        
         HttpResponseMessage response =
-            await Client.PostAsync($"{AuthenticationApi}/register-creating-org", JsonContent.Create(payload));
+            await Client.PostAsync($"{AuthenticationApi}/register", JsonContent.Create(signUp));
 
         return response;
     }
